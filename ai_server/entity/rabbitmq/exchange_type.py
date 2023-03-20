@@ -1,6 +1,6 @@
 from enum import Enum
 
-class ExchangeType:
+class ExchangeType(Enum):
     DEFAULT = 'topic'
     DIRECT = 'direct'
     FANOUT = 'fanout'

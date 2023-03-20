@@ -1,0 +1,5 @@
+start server -> start stream_loader on another thread -> 
+
+
+
++ Thêm database lưu event key sau

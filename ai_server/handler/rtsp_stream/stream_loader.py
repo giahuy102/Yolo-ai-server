@@ -9,7 +9,7 @@ import re
 
 class StreamLoader:  # multiple IP or RTSP cameras
     def __init__(self, stream_infos):
-        self.mode = 'stream'
+        
 
 
         n = len(stream_infos)

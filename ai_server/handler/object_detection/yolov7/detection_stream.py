@@ -6,8 +6,11 @@ from utils.datasets import letterbox
 
 
 
-class YOLOStreamLoader:
+class DetectionStream:
     def __init__(self, stream_loader, img_size=640, stride=32):
+        self.mode = 'stream'
+
+
         self.stream_loader = stream_loader
         self.img_size = img_size
         self.stride = stride
