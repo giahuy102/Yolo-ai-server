@@ -16,14 +16,15 @@
 
     [[rabbitmq.exchanges]]
 
-        name = "event_processing"
-        [[rabbitmq.exchanges.queues]]
-            name = "event_created_with_media"
-            binding_keys = ["event.media.*"]
+        [[rabbitmq.exchanges.event_processing]]
+            name = "event_processing"
+            [[rabbitmq.exchanges.event_processing.queues]]
+                name = "event_created_with_media"
+                binding_keys = ["event.media.*"]
 
-        [[rabbitmq.exchanges.queues]]
-            name = "event_verified"
-            binding_keys = ["event.verified.iot.*", "event.verified.camera.*"]
+            [[rabbitmq.exchanges.event_processing.queues]]
+                name = "event_verified"
+                binding_keys = ["event.verified.iot.*", "event.verified.camera.*"]
 
 
 [event]

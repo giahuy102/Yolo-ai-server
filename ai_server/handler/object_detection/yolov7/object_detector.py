@@ -8,6 +8,7 @@ import cv2
 import torch
 import torch.backends.cudnn as cudnn
 from numpy import random
+import numpy as np
 
 from models.experimental import attempt_load
 from utils.datasets import LoadStreams, LoadImages
@@ -22,31 +23,15 @@ from utils.torch_utils import select_device, load_classifier, time_synchronized,
 from detection_stream import DetectionStream
 from detection_argument import DetectionArgument
 
+from ....entity.object_detection.detection_object import DetectionObject
 
-class StreamObjectDetector:
+class ObjectDetector:
 
     
-    def __init__(self, stream_loader, save_dir=Path(__file__).parents[3] / 'static' / 'detection', weight_dir=Path(__file__).parents[3] / 'pkg' / 'object_detection' / 'yolov7' / ''):
-
-        self.stream_loader = stream_loader
-        
-
-        # Generate saving directory
-        self.save_dir = save_dir
-        self.save_img_dir = self.save_dir / 'image'
-        self.save_video_dir = self.save_dir / 'video'
-        self.save_img_dir.mkdir(parents=True, exist_ok=True)
-        self.save_video_dir.mkdir(parents=True, exist_ok=True)
-
-
+    def __init__(self, weight_dir=Path(__file__).parents[3] / 'pkg' / 'object_detection' / 'yolov7' / ''):
         self.weight_dir = weight_dir
 
-
-
-
-
-    def detect(self, opt=DetectionArgument()):
-
+    def detect(self, callback, opt=DetectionArgument()):
         # Initialize
         set_logging()
         device = select_device(opt.device)
@@ -153,14 +138,41 @@ class StreamObjectDetector:
                     det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
 
                     # Write results
+                    
                     detection_result = defaultdict(list)
+
+
+
+                    # for *xyxy, conf, cls in reversed(det):
+                    #     new_obj = {
+                    #         'xyxy': list(map(lambda x: float(x), xyxy)),
+                    #         'center_w_h': xyxy2xywh(torch.tensor(xyxy).view(1, 4))[0].tolist(),
+                    #         'confident': conf
+                    #     }   
+                    #     detection_result[names[cls]].append(new_obj)             
+
+
+
+                    detection_objects = list()
                     for *xyxy, conf, cls in reversed(det):
-                        new_obj = {
-                            'xyxy': list(map(lambda x: float(x), xyxy)),
-                            'center_w_h': xyxy2xywh(torch.tensor(xyxy).view(1, 4))[0].tolist(),
-                            'confident': conf
-                        }   
-                        detection_result[names[cls]].append(new_obj)             
+                        class_name = names[int(cls)]
+                        xyxy = list(map(lambda x: float(x), xyxy))
+                        center_w_h = xyxy2xywh(torch.tensor(xyxy).view(1, 4))[0].tolist()
+                        confident = confident
+
+                        img_frame = np.copy(im0)
+
+                        label = f'{names[int(cls)]} {conf:.2f}'
+                        plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
+
+                        img_frame_with_box = im0
+
+                        detection_objects.append(DetectionObject(class_name, xyxy, center_w_h, confident, img_frame, img_frame_with_box))
+
+                    callback(detection_objects, vid_cap)
+
+
+
 
                 # Print time (inference + NMS)
                 print(f'{s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, ({(1E3 * (t3 - t2)):.1f}ms) NMS')
