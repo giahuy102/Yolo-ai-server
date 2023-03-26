@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 import copy
 
-from utils.datasets import letterbox
+from .utils.datasets import letterbox
 
 
 

@@ -5,6 +5,10 @@ import json
 
 
 from ...handler.event_processing.event_context import EventContext
+from ...handler.event_processing.object_detected import ObjectDetected
+from ...entity.event.event_processing.event_processing_input import EventProcessingInput
+
+from ...util.worker_process_pool import WorkerProcessPool
 
 class ConsumerCallbacks:
 
@@ -23,8 +27,14 @@ class ConsumerCallbacks:
 
         event_context = EventContext()
 
+        event_input = EventProcessingInput(body["event_id"], body["video_url"], body["start_time"], body["end_time"], body["target_time"])
+
 
         if routing_key[-1] == iot_config["door_open"]["key"]:
+            handler = ObjectDetected()
+            event_context.set_handler(handler)
             
+            pool_executor = WorkerProcessPool().get_executor()
+            pool_executor.submit(event_context.execute_handler, event_input, "video")
 
 

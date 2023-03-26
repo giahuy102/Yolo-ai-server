@@ -1,14 +1,13 @@
-import argparse
-from email.policy import default
 import time
+from datetime import datetime
 from pathlib import Path
-from collections import defaultdict
 
 import cv2
 import torch
 import torch.backends.cudnn as cudnn
 from numpy import random
 import numpy as np
+
 
 from models.experimental import attempt_load
 from utils.datasets import LoadStreams, LoadImages
@@ -19,26 +18,33 @@ from utils.torch_utils import select_device, load_classifier, time_synchronized,
 
 
 
+from .detection_stream import DetectionStream
+from .detection_argument import DetectionArgument
 
-from detection_stream import DetectionStream
-from detection_argument import DetectionArgument
+from ....entity.object_detection.detection_result import DetectionResult
 
-from ....entity.object_detection.detection_object import DetectionObject
+
+
+
 
 class ObjectDetector:
 
-    
-    def __init__(self, weight_dir=Path(__file__).parents[3] / 'pkg' / 'object_detection' / 'yolov7' / ''):
-        self.weight_dir = weight_dir
+    def detect(self, detection_object, callback, opt=DetectionArgument()):  
 
-    def detect(self, callback, opt=DetectionArgument()):
+        # print(str(opt.weight_dir / opt.weights))
+        # print((opt.weight_dir / opt.weights).exists())
+
+
         # Initialize
         set_logging()
         device = select_device(opt.device)
         half = device.type != 'cpu'  # half precision only supported on CUDA
 
         # Load model
-        model = attempt_load(str(self.weight_dir / opt.weights), map_location=device)  # load FP32 model
+        model = attempt_load(str(opt.weight_dir / opt.weights), map_location=device)  # load FP32 model
+        
+        
+        
         stride = int(model.stride.max())  # model stride
         imgsz = check_img_size(opt.img_size, s=stride)  # check img_size
 
@@ -56,26 +62,6 @@ class ObjectDetector:
 
 
 
-
-
-
-
-
-        # # Set Dataloader
-        # vid_path, vid_writer = None, None
-        # if webcam:
-        #     view_img = check_imshow()
-        #     cudnn.benchmark = True  # set True to speed up constant image size inference
-        #     dataset = LoadStreams(source, img_size=imgsz, stride=stride)
-        # else:
-        #     dataset = LoadImages(source, img_size=imgsz, stride=stride)
-
-
-        stream_frames = DetectionStream(self.stream_loader, opt.img_size, opt.stride)
-
-
-
-
         # Get names and colors
         names = model.module.names if hasattr(model, 'module') else model.names
         colors = [[random.randint(0, 255) for _ in range(3)] for _ in names]
@@ -87,7 +73,7 @@ class ObjectDetector:
         old_img_b = 1
 
         t0 = time.time()
-        for path, img, im0s, vid_cap, stream_info in stream_frames:
+        for path, img, im0s, vid_cap, info in detection_object:
             img = torch.from_numpy(img).to(device)
             img = img.half() if half else img.float()  # uint8 to fp16/32
             img /= 255.0  # 0 - 255 to 0.0 - 1.0
@@ -118,47 +104,27 @@ class ObjectDetector:
 
             # Process detections
             for i, det in enumerate(pred):  # detections per image
-
-
-                p, s, im0, frame = path[i], '%g: ' % i, im0s[i].copy(), stream_frames.count
+                if detection_object.mode == 'stream':
+                    p, s, im0, frame = path[i], '%g: ' % i, im0s[i].copy(), detection_object.count
+                else:
+                    p, s, im0, frame = path, '', im0s, getattr(detection_object, 'frame', 0)
+                
 
                 p = Path(p)  # to Path
-
-
-
-                save_path = str(self.save_dir / p.name)  # img.jpg
-                txt_path = str(self.save_dir / 'labels' / p.stem) + ('' if stream_frames.mode == 'image' else f'_{frame}')  # img.txt
                 
-                
-                
-                
-                gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
                 if len(det):
                     # Rescale boxes from img_size to im0 size
                     det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
 
+
+
                     # Write results
-                    
-                    detection_result = defaultdict(list)
-
-
-
-                    # for *xyxy, conf, cls in reversed(det):
-                    #     new_obj = {
-                    #         'xyxy': list(map(lambda x: float(x), xyxy)),
-                    #         'center_w_h': xyxy2xywh(torch.tensor(xyxy).view(1, 4))[0].tolist(),
-                    #         'confident': conf
-                    #     }   
-                    #     detection_result[names[cls]].append(new_obj)             
-
-
-
-                    detection_objects = list()
+                    detection_results = list()
                     for *xyxy, conf, cls in reversed(det):
                         class_name = names[int(cls)]
                         xyxy = list(map(lambda x: float(x), xyxy))
                         center_w_h = xyxy2xywh(torch.tensor(xyxy).view(1, 4))[0].tolist()
-                        confident = confident
+                        confident = conf
 
                         img_frame = np.copy(im0)
 
@@ -167,11 +133,11 @@ class ObjectDetector:
 
                         img_frame_with_box = im0
 
-                        detection_objects.append(DetectionObject(class_name, xyxy, center_w_h, confident, img_frame, img_frame_with_box))
+                        cur_time = datetime.now().isoformat()
 
-                    callback(detection_objects, vid_cap)
+                        detection_results.append(DetectionResult(class_name, xyxy, center_w_h, confident, img_frame, img_frame_with_box, cur_time, info))
 
-
+                    callback(detection_results, vid_cap)
 
 
                 # Print time (inference + NMS)
@@ -179,6 +145,5 @@ class ObjectDetector:
 
         print(f'Done. ({time.time() - t0:.3f}s)')
 
-        
 
 

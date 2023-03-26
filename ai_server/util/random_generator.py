@@ -3,7 +3,8 @@ import time
 
 class RandomGenerator:
 
-    def gen_file_name(self, prefix=''):
+    @staticmethod
+    def gen_file_name(prefix=''):
         res = ''
         if prefix != '':
             res += '-'

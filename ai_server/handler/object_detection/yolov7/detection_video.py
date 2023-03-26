@@ -5,9 +5,9 @@ from utils.datasets import letterbox
 
 class DetectionVideo:
     def __init__(self, video_urls=[], img_size=640, stride=32):
+        self.mode = 'video'
 
         self.video_urls = video_urls
-
 
         self.n = len(self.video_urls)
 
@@ -18,7 +18,7 @@ class DetectionVideo:
         self.img_size = img_size
         self.stride = stride
 
-        self.mode = 'video'
+        
 
 
     def __iter__(self):
@@ -55,7 +55,8 @@ class DetectionVideo:
         return source, img, img0, self.cap, None
 
 
-    def new_video(self, path):
+    def new_video(self, url):
         self.frame = 0
-        self.cap = cv2.VideoCapture(path)
+        self.cap = cv2.VideoCapture(url)
         self.nframes = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        print(self.nframes)

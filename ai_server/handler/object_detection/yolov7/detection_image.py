@@ -2,7 +2,7 @@ import cv2
 import urllib
 import numpy as np
 
-from utils.datasets import letterbox
+from .utils.datasets import letterbox
 
 class DetectionImage:
     def __init__(self, img_urls=[], img_size=640, stride=32):

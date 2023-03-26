@@ -1,6 +1,6 @@
 import pika
 
-from ...pkg.config.config import config
+from ....pkg.config.config import config
 
 
 # Set the connection parameters to connect to rabbit-server1 on port 5672

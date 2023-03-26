@@ -1,7 +1,7 @@
 [server]
     [server.http]
         host = "localhost"
-        port = "3001"
+        port = "5000"
         protocol = "http"
 
 
@@ -26,6 +26,10 @@
                 name = "event_verified"
                 binding_keys = ["event.verified.iot.*", "event.verified.camera.*"]
 
+        [[rabbitmq.exchanges.stream_processing]]
+            name = "stream_processsing"
+            
+
 
 [event]
     [event.iot]
@@ -35,5 +39,13 @@
     [event.camera]
         crowd_gathering = { key = "crowd_gathering" }
         line_crossing = { key = "line_crossing" }
+
+
+[static]
+    [static.path]
+        general_image = "/static/general/image"
+        detection_image = "/static/detection/image"
+        detection_video = "/static/detection/video"
+
 
 

@@ -1,8 +1,9 @@
 import threading
 
-from .rabbitmq_connection import RabbitMQConnection
+# from .rabbitmq_connection import RabbitMQConnection
+from .rabbitmq import RabbitMQ
 
-class ThreadConsumer(threading.Thread):
+class ThreadConsumer(threading.Thread, RabbitMQ):
 
     """
         Declare one channel
@@ -13,9 +14,12 @@ class ThreadConsumer(threading.Thread):
     """
 
     def __init__(self, exchange, queue, callback):
-        super().__init__()
-        self.connection = RabbitMQConnection().init()
-    
+        # super().__init__()
+        threading.Thread.__init__(self)
+        # self.connection = RabbitMQConnection().init()
+
+        
+        self.init_connection()
         self.init_channel()
         self.init_exchange(exchange.name, exchange.typ)
         self.init_queue(exchange.name, queue.name, queue.binding_keys, queue.params)
@@ -24,17 +28,17 @@ class ThreadConsumer(threading.Thread):
 
 
 
-    def init_channel(self):
-        self.channel = self.connection.channel()
+    # def init_channel(self):
+    #     self.channel = self.connection.channel()
 
-    def init_exchange(self, exchange, exchange_type):
-        self.channel.exchange_declare(exchange, exchange_type)
+    # def init_exchange(self, exchange, exchange_type):
+    #     self.channel.exchange_declare(exchange, exchange_type)
         
 
-    def init_queue(self, exchange_name, queue_name, binding_keys, queue_params):
-        self.channel.queue_declare(queue=queue_name, durable=queue_params.durable)
-        for binding_key in binding_keys:
-            self.channel.queue_bind(exchange=exchange_name, queue=queue_name, routing_key=binding_key)
+    # def init_queue(self, exchange_name, queue_name, binding_keys, queue_params):
+    #     self.channel.queue_declare(queue=queue_name, durable=queue_params.durable)
+    #     for binding_key in binding_keys:
+    #         self.channel.queue_bind(exchange=exchange_name, queue=queue_name, routing_key=binding_key)
 
 
     def run(self):
