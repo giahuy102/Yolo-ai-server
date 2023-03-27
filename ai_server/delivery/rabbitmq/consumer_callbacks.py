@@ -20,17 +20,22 @@ class ConsumerCallbacks:
         iot_config = event_config["iot"]
         camera_config = event_config["camera"]
 
-        exchange = broker_config["exchanges"]["event_processing"]
+        for ex in broker_config["exchanges"]:
+            if ex["name"] == "event_processing":
+                exchange = ex
+                break
         routing_key = method.routing_key.split('.')
 
         body = json.loads(body)
 
         event_context = EventContext()
 
+        print(body)
+
         event_input = EventProcessingInput(body["event_id"], body["video_url"], body["start_time"], body["end_time"], body["target_time"])
 
 
-        if routing_key[-1] == iot_config["door_open"]["key"]:
+        if routing_key[-1] == iot_config["movement"]["key"]:
             handler = ObjectDetected()
             event_context.set_handler(handler)
             

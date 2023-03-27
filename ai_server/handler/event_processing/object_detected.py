@@ -25,7 +25,7 @@ from ...entity.event.event_processing.event_processing_output import EventProces
 server_config = config["server"]["http"]
 static_config = config["static"]
 path_config = static_config["path"]
-root_path = str(Path(__file__))
+root_path = str(Path(__file__).parents[2])
 
 
 
@@ -36,6 +36,12 @@ from ...delivery.rabbitmq.producer import Producer
 from ...entity.rabbitmq.exchange import Exchange
 from ...entity.rabbitmq.queue import Queue
 import json
+
+
+
+
+
+import os
 
 
 class ObjectDetected:
@@ -61,7 +67,7 @@ class ObjectDetected:
 
 
     def callback_video(self, detection_results, cap=None): # cap use for stream --> Need to refactor this code
-        
+
         video_cap = self.detection_video.cap
         timestamp_ms = video_cap.get(cv2.CAP_PROP_POS_MSEC)
 
@@ -81,6 +87,7 @@ class ObjectDetected:
             self.normal_delta_timestamp_ms = abs(timestamp_ms - self.target_timestamp_ms)
 
 
+        print("Shape ", res.img_frame_with_box.shape)
         self.video_writer.write(res.img_frame_with_box)
 
 
@@ -88,17 +95,26 @@ class ObjectDetected:
 
 
     def execute_video(self, event_input):
+
+
         self.event_input = event_input
         self.detection_video = DetectionVideo([event_input.video_url])
 
 
         video_extension = Path(self.event_input.video_url).suffix
-        general_image_file = path_config["general_image"] + RandomGenerator.gen_file_name() + ".jpg"
-        detection_image_file = path_config["detection_image"] + RandomGenerator.gen_file_name() + ".jpg"
-        detection_video_file = path_config["detection_video"] + RandomGenerator.gen_file_name() + video_extension
+        general_image_file = path_config["general_image"] + '/' + RandomGenerator.gen_file_name() + ".jpg"
+        detection_image_file = path_config["detection_image"] + '/' + RandomGenerator.gen_file_name() + ".jpg"
+        detection_video_file = path_config["detection_video"] + '/' + RandomGenerator.gen_file_name() + video_extension
         self.general_image_path = root_path + general_image_file
         self.detection_image_path = root_path + detection_image_file
         self.detection_video_path = root_path + detection_video_file
+
+
+
+
+        os.makedirs(root_path + path_config["general_image"], exist_ok=True)
+        os.makedirs(root_path + path_config["detection_image"], exist_ok=True)
+        os.makedirs(root_path + path_config["detection_video"], exist_ok=True)
 
 
 
@@ -108,6 +124,8 @@ class ObjectDetected:
         h = int(video_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self.video_writer = cv2.VideoWriter(self.detection_video_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
 
+        print("Width ", w)
+        print("Height ", h)
 
 
         self.start_time = parse(event_input.start_time)
@@ -130,18 +148,25 @@ class ObjectDetected:
         detector.detect(self.detection_video, self.callback_video)
 
 
-
         cv2.imwrite(self.general_image_path, self.img_frame)
-        if self.img_frame_with_box:
-            cv2.imwrite(self.detection_image_path, self.img_frame_with_box)
+        # if self.img_frame_with_box:
+        #     cv2.imwrite(self.detection_image_path, self.img_frame_with_box)
 
+        cv2.imwrite(self.detection_image_path, self.img_frame_with_box)
 
-
-        # host = f"{server_config['protocol']://server_config['host']:server_config['port']}"
-        # image_url = f"{host}{general_image_file}"
-        # detection_image_url = f"{host}{detection_image_file}"
-        # detection_video_url = f"{host}{detection_video_file}"
-        # true_alarm = self.true_alarm
-        # event_output = EventProcessingOutput(event_input.event_id, image_url, event_input.video_url, detection_image_url, detection_video_url, true_alarm)
         
 
+        host = f"{server_config['protocol']}://{server_config['host']}:{server_config['port']}"
+        image_url = f"{host}{general_image_file}"
+        detection_image_url = f"{host}{detection_image_file}"
+        detection_video_url = f"{host}{detection_video_file}"
+        true_alarm = self.true_alarm
+
+        
+
+        event_output = EventProcessingOutput(event_input.event_id, image_url, event_input.video_url, detection_image_url, detection_video_url, true_alarm)
+        
+        
+
+        producer = Producer(Exchange("event_processing"), Queue("event_verified", ["event.verified.camera.*"]))
+        producer.produce_message("event_processing", "event.verified.camera.movement", event_output.to_json())

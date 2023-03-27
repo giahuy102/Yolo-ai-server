@@ -3,6 +3,12 @@ import numpy as np
 
 from utils.datasets import letterbox
 
+
+
+import time
+
+
+
 class DetectionVideo:
     def __init__(self, video_urls=[], img_size=640, stride=32):
 
@@ -32,37 +38,83 @@ class DetectionVideo:
         return self
 
     def __next__(self):
-        if self.n <= 0:
-            raise StopIteration
-        ret_val, img0 = self.cap.read()
 
-        if not ret_val and self.count == self.n - 1:
-            raise StopIteration
+        while self.frame % 20 != 0:
+            
 
-        if not ret_val:
-            self.count += 1
-            self.cap.release()
-            self.new_video(self.video_urls[self.count])
+            if self.n <= 0:
+                raise StopIteration
             ret_val, img0 = self.cap.read()
+
+            if not ret_val and self.count == self.n - 1:
+                raise StopIteration
+
+            if not ret_val:
+                self.count += 1
+                self.cap.release()
+                self.new_video(self.video_urls[self.count])
+                ret_val, img0 = self.cap.read()
+            
+
+            source = self.video_urls[self.count]
+
+            self.frame += 1
         
 
-        source = self.video_urls[self.count]
+            # Padded resize
+            img = letterbox(img0, self.img_size, stride=self.stride)[0]
+
+            # Convert
+            img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
+            img = np.ascontiguousarray(img)
 
         self.frame += 1
+
+
+
+
+
+
+
+
+
+        # if self.n <= 0:
+        #     raise StopIteration
+        # ret_val, img0 = self.cap.read()
+
+        # if not ret_val and self.count == self.n - 1:
+        #     raise StopIteration
+
+        # if not ret_val:
+        #     self.count += 1
+        #     self.cap.release()
+        #     self.new_video(self.video_urls[self.count])
+        #     ret_val, img0 = self.cap.read()
+        
+
+        # source = self.video_urls[self.count]
+
+        # self.frame += 1
     
 
-        # Padded resize
-        img = letterbox(img0, self.img_size, stride=self.stride)[0]
+        # # Padded resize
+        # img = letterbox(img0, self.img_size, stride=self.stride)[0]
 
-        # Convert
-        img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
-        img = np.ascontiguousarray(img)
+        # # Convert
+        # img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
+        # img = np.ascontiguousarray(img)
+
+
+
+
+
+
 
         return source, img, img0, self.cap, None
 
 
     def new_video(self, url):
-        self.frame = 0
+        self.frame = 1
         self.cap = cv2.VideoCapture(url)
         self.nframes = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
 

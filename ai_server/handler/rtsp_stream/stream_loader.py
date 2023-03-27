@@ -60,8 +60,8 @@ class StreamLoader(object):  # multiple IP or RTSP cameras
 
 
 
-    def clean_url_stream(self, s):
-        return re.sub(pattern="[|@#!¡·$€%&()=?¿^*;:,¨´><+]", repl="_", string=s)
+    # def clean_url_stream(self, s):
+    #     return re.sub(pattern="[|@#!¡·$€%&()=?¿^*;:,¨´><+]", repl="_", string=s)
 
 
     def add_stream(self, stream_id, info):
@@ -146,28 +146,28 @@ class StreamLoader(object):  # multiple IP or RTSP cameras
 
 
 
-    def __iter__(self):
-        self.count = -1
-        return self
+    # def __iter__(self):
+    #     self.count = -1
+    #     return self
 
-    def __next__(self):
-        self.count += 1
-        img0 = self.imgs.copy()
-        if cv2.waitKey(1) == ord('q'):  # q to quit
-            cv2.destroyAllWindows()
-            raise StopIteration
+    # def __next__(self):
+    #     self.count += 1
+    #     img0 = self.imgs.copy()
+    #     if cv2.waitKey(1) == ord('q'):  # q to quit
+    #         cv2.destroyAllWindows()
+    #         raise StopIteration
 
-        # Letterbox
-        img = [letterbox(x, self.img_size, auto=self.rect, stride=self.stride)[0] for x in img0]
+    #     # Letterbox
+    #     img = [letterbox(x, self.img_size, auto=self.rect, stride=self.stride)[0] for x in img0]
 
-        # Stack
-        img = np.stack(img, 0)
+    #     # Stack
+    #     img = np.stack(img, 0)
 
-        # Convert
-        img = img[:, :, :, ::-1].transpose(0, 3, 1, 2)  # BGR to RGB, to bsx3x416x416
-        img = np.ascontiguousarray(img)
+    #     # Convert
+    #     img = img[:, :, :, ::-1].transpose(0, 3, 1, 2)  # BGR to RGB, to bsx3x416x416
+    #     img = np.ascontiguousarray(img)
 
-        return self.sources, img, img0, None
+    #     return self.sources, img, img0, None
 
-    def __len__(self):
-        return 0  # 1E12 frames = 32 streams at 30 FPS for 30 years
+    # def __len__(self):
+    #     return 0  # 1E12 frames = 32 streams at 30 FPS for 30 years

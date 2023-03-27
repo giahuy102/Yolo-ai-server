@@ -13,13 +13,18 @@ class Consumers:
     def consume_event_processing(callback=ConsumerCallbacks.calback_event_processing):
         broker_config = config['rabbitmq']
         consumers = list()
-        exchange = broker_config["exchanges"]["event_processing"]
+        exchanges = broker_config["exchanges"]
+        for ex in exchanges:
+            if ex["name"] == "event_processing":
+                exchange = ex
+                break
         new_exchange = Exchange(exchange["name"])
         for q in exchange["queues"]:
-            new_queue = Queue(q["name"], q["binding_keys"])
-            consumer = ThreadConsumer(new_exchange, new_queue, callback)
-            consumers.append(consumer)
-            consumer.start()
+            if q["name"] == "event_created_with_media":
+                new_queue = Queue(q["name"], q["binding_keys"])
+                consumer = ThreadConsumer(new_exchange, new_queue, callback)
+                consumers.append(consumer)
+                consumer.start()
 
 
 

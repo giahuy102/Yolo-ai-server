@@ -24,7 +24,8 @@ class ThreadConsumer(threading.Thread, RabbitMQ):
         self.init_exchange(exchange.name, exchange.typ)
         self.init_queue(exchange.name, queue.name, queue.binding_keys, queue.params)
 
-        self.channel.basic_consume(queue=queue.name, on_message_callback=callback)
+        # Temporarily add auto ack for message
+        self.channel.basic_consume(queue=queue.name, auto_ack=True, on_message_callback=callback)
 
 
 

@@ -23,17 +23,43 @@ from .handler.object_detection.yolov7.object_detector import ObjectDetector
 from .handler.object_detection.yolov7.detection_stream import DetectionStream
 
 def main():
-    # Consumers.consume_event_processing()
+
+
+    # import cv2
+    # import numpy as np
+    
+
+    # frameSize = (600, 500)
+
+    # out = cv2.VideoWriter('/home/legiahuy/HK222/DATN/Ai/yolo_ai_server/ai_server/static/detection/video/out.mp4',cv2.VideoWriter_fourcc(*'H264'), 60, frameSize)
+
+    # for i in range(0,255):
+    #     img = np.ones((500, 600, 3), dtype=np.uint8)*i
+    #     out.write(img)
+    # print(img.shape)
+
+    # out.release()
+
+
+
+
+
+
+
+
+
+
+    Consumers.consume_event_processing()
     
     # Initial data - Only use for testing
-    stream_info = RTSPStream("test_camera_id", "rtsp://admin:Dientoan@123@tris.ddns.net:5564/Streaming/Channels/102?transportmode=unicast&profile=Profile_2", "movement")
-    stream_loader = StreamLoader([stream_info])
-    detection_stream = DetectionStream(stream_loader)
+    # stream_info = RTSPStream("test_camera_id", "rtsp://admin:Dientoan@123@tris.ddns.net:5564/Streaming/Channels/102?transportmode=unicast&profile=Profile_2", "movement")
+    # stream_loader = StreamLoader([stream_info])
+    # detection_stream = DetectionStream(stream_loader)
 
 
-    detected_handler = ObjectDetected()
-    detector = ObjectDetector()
-    detector.detect(detection_stream, detected_handler.callback_stream)
+    # detected_handler = ObjectDetected()
+    # detector = ObjectDetector()
+    # detector.detect(detection_stream, detected_handler.callback_stream)
 
 
 
