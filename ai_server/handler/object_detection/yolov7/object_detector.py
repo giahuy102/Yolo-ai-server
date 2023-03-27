@@ -104,10 +104,19 @@ class ObjectDetector:
 
             # Process detections
             for i, det in enumerate(pred):  # detections per image
+                # if detection_object.mode == 'stream':
+                #     p, s, im0, frame = path[i], '%g: ' % i, im0s[i].copy(), detection_object.count
+                # else:
+                #     p, s, im0, frame = path, '', im0s, getattr(detection_object, 'frame', 0)
+
                 if detection_object.mode == 'stream':
-                    p, s, im0, frame = path[i], '%g: ' % i, im0s[i].copy(), detection_object.count
+                    p, s, im0 = path[i], '%g: ' % i, im0s[i].copy()
+                    
+                    finfo = info[i]
+
                 else:
-                    p, s, im0, frame = path, '', im0s, getattr(detection_object, 'frame', 0)
+                    p, s, im0 = path, '', im0s
+                    finfo = info
                 
 
                 p = Path(p)  # to Path
@@ -135,15 +144,12 @@ class ObjectDetector:
 
                         cur_time = datetime.now().isoformat()
 
-                        detection_results.append(DetectionResult(class_name, xyxy, center_w_h, confident, img_frame, img_frame_with_box, cur_time, info))
+                        detection_results.append(DetectionResult(class_name, xyxy, center_w_h, confident, img_frame, img_frame_with_box, cur_time, finfo))
 
                     callback(detection_results, vid_cap)
 
 
                 # Print time (inference + NMS)
-                print(f'{s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, ({(1E3 * (t3 - t2)):.1f}ms) NMS')
+                # print(f'{s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, ({(1E3 * (t3 - t2)):.1f}ms) NMS')
 
         print(f'Done. ({time.time() - t0:.3f}s)')
-
-
-

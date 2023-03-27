@@ -16,10 +16,28 @@ app = Flask(__name__)
 
 from .delivery.rabbitmq.consumers import Consumers
 
-def main():
-    Consumers.consume_event_processing()
-    
+from .handler.rtsp_stream.stream_loader import StreamLoader
+from .entity.rtsp_stream.rtsp_stream import RTSPStream
+from .handler.event_processing.object_detected import ObjectDetected
+from .handler.object_detection.yolov7.object_detector import ObjectDetector
+from .handler.object_detection.yolov7.detection_stream import DetectionStream
 
+def main():
+    # Consumers.consume_event_processing()
+    
+    # Initial data - Only use for testing
+    stream_info = RTSPStream("test_camera_id", "rtsp://admin:Dientoan@123@tris.ddns.net:5564/Streaming/Channels/102?transportmode=unicast&profile=Profile_2", "movement")
+    stream_loader = StreamLoader([stream_info])
+    detection_stream = DetectionStream(stream_loader)
+
+
+    detected_handler = ObjectDetected()
+    detector = ObjectDetector()
+    detector.detect(detection_stream, detected_handler.callback_stream)
+
+
+
+main()
 
 
 

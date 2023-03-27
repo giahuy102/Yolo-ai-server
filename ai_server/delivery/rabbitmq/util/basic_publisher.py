@@ -1,6 +1,6 @@
 from .rabbitmq import RabbitMQ
 
-class BasicPublisher():
+class BasicPublisher(RabbitMQ):
     def __init__(self, exchange, queue):
 
         self.init_connection()

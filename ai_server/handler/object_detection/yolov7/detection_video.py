@@ -5,6 +5,12 @@ from utils.datasets import letterbox
 
 class DetectionVideo:
     def __init__(self, video_urls=[], img_size=640, stride=32):
+
+        """
+            Temporarily, this implementation is just supported for video_urls with 1 url in it
+        """
+
+
         self.mode = 'video'
 
         self.video_urls = video_urls
@@ -22,7 +28,7 @@ class DetectionVideo:
 
 
     def __iter__(self):
-        self.count = 0
+        self.count = 0 # index of the video in array. Temporarily not has any usages
         return self
 
     def __next__(self):
@@ -59,4 +65,4 @@ class DetectionVideo:
         self.frame = 0
         self.cap = cv2.VideoCapture(url)
         self.nframes = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        print(self.nframes)
+

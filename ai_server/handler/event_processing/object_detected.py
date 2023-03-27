@@ -1,3 +1,4 @@
+from multiprocessing import Event
 import cv2
 from pathlib import Path
 from dateutil.parser import parse
@@ -26,9 +27,39 @@ static_config = config["static"]
 path_config = static_config["path"]
 root_path = str(Path(__file__))
 
+
+
+
+
+
+from ...delivery.rabbitmq.producer import Producer
+from ...entity.rabbitmq.exchange import Exchange
+from ...entity.rabbitmq.queue import Queue
+import json
+
+
 class ObjectDetected:
     
-    
+
+
+
+    def callback_stream(self, detection_results, cap=None):
+        for res in detection_results:
+            print(res.name, end=" ")
+            if res.name == "person":
+                event_output = {
+                    'event_key': 'movement',
+                    'event_time': res.cur_time,
+                    'message': "Movement detected"
+                }
+                producer = Producer(Exchange("stream_processing"), Queue("camera_event", ["event.camera.*"]))
+                producer.produce_message("stream_processing", "event.camera.movement", json.dumps(event_output, indent=4))
+                break
+        print("")
+
+
+
+
     def callback_video(self, detection_results, cap=None): # cap use for stream --> Need to refactor this code
         
         video_cap = self.detection_video.cap

@@ -4,7 +4,7 @@ from .rabbitmq_connection import RabbitMQConnection
 class RabbitMQ:
 
     def init_connection(self):
-        self.connection = RabbitMQConnection.init()
+        self.connection = RabbitMQConnection().init()
 
     def init_channel(self):
         self.channel = self.connection.channel()

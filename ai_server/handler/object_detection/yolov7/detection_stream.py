@@ -9,30 +9,37 @@ from .utils.datasets import letterbox
 class DetectionStream:
     def __init__(self, stream_loader, img_size=640, stride=32):
         self.mode = 'stream'
-
-
         self.stream_loader = stream_loader
         self.img_size = img_size
         self.stride = stride
 
-
+    def check_common_shape(self, frames):
         # check for common shapes
-        s = np.stack([letterbox(x, self.img_size, stride=self.stride)[0].shape for x in self.stream_loader.get_frames()], 0)  # shapes
+        s = np.stack([letterbox(x, self.img_size, stride=self.stride)[0].shape for x in frames], 0)  # shapes
         self.rect = np.unique(s, axis=0).shape[0] == 1  # rect inference if all shapes equal
         if not self.rect:
             print('WARNING: Different stream shapes detected. For optimal performance supply similarly-shaped streams.')
 
 
+
     def __iter__(self):
-        self.count = -1
+        self.count = -1 # Temporarily not have any usage here
         return self
 
 
     def __next__(self):
         self.count += 1
-        img0 = self.stream_loader.get_frames().copy()
-        stream_infos = copy.deepcopy(list(self.stream_loader.get_stream_infos().values()))
-        sources = [info.rtsp_url for info in stream_infos.values()]
+
+
+        stream_infos, img0, just_updated_infos = self.stream_loader.get_streams()
+        if just_updated_infos:
+            self.check_common_shape(img0)
+
+        sources = [info.rtsp_url for info in stream_infos]
+
+        # img0 = self.stream_loader.get_frames().copy()
+        # stream_infos = copy.deepcopy(list(self.stream_loader.get_stream_infos().values()))
+        # sources = [info.rtsp_url for info in stream_infos.values()]
 
 
 
@@ -52,10 +59,3 @@ class DetectionStream:
 
         return sources, img, img0, None, stream_infos
 
-
-
-
-
-
-        
-        
