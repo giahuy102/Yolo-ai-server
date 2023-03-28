@@ -52,14 +52,14 @@ def main():
     Consumers.consume_event_processing()
     
     # Initial data - Only use for testing
-    # stream_info = RTSPStream("test_camera_id", "rtsp://admin:Dientoan@123@tris.ddns.net:5564/Streaming/Channels/102?transportmode=unicast&profile=Profile_2", "movement")
-    # stream_loader = StreamLoader([stream_info])
-    # detection_stream = DetectionStream(stream_loader)
+    stream_info = RTSPStream("test_camera_id", "rtsp://admin:Dientoan@123@tris.ddns.net:5564/Streaming/Channels/102?transportmode=unicast&profile=Profile_2", "movement")
+    stream_loader = StreamLoader([stream_info])
+    detection_stream = DetectionStream(stream_loader)
 
-
-    # detected_handler = ObjectDetected()
-    # detector = ObjectDetector()
-    # detector.detect(detection_stream, detected_handler.callback_stream)
+      
+    detected_handler = ObjectDetected()
+    detector = ObjectDetector()
+    detector.detect(detection_stream, detected_handler.callback_stream)
 
 
 
