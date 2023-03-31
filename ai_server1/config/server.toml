@@ -1,0 +1,58 @@
+[server]
+    [server.http]
+        host = "localhost"
+        port = "5000"
+        scheme = "http"
+
+
+[rabbitmq]
+    host = "localhost"
+    username = "guest"
+    password = "guest"
+    port = "5672"
+    scheme = "amqp"
+    virtual_host = "/"
+    
+
+
+
+    [[rabbitmq.exchanges]]
+        name = "event_processing"
+        type = "topic"
+        [[rabbitmq.exchanges.queues]]
+            name = "event_created_with_media"
+            binding_keys = ["event.created.media.iot.*", "event.created.media.camera.*"]
+
+        [[rabbitmq.exchanges.queues]]
+            name = "event_verified"
+            binding_keys = ["event.verified.iot.*", "event.verified.camera.*"]
+            routing_key_prefix = {event_verified_iot = "event.verified.iot", event_verified_camera = "event.verified.camera"}
+
+    [[rabbitmq.exchanges]]
+        name = "stream_processsing"
+        type = "topic"
+        [[rabbitmq.exchanges.queues]]
+            name = "event_new"
+            binding_keys = ["event.new.camera.*"] # not have event.new.iot because iot event is published to another queue of another exchange
+            routing_key_prefix = {event_new_camera = "event.new.camera"}
+            
+
+
+[event]
+    [event.iot]
+        door_open = { key = "door_open" }
+        movement = { key = "movement" }
+
+    [event.camera]
+        crowd_gathering = { key = "crowd_gathering" }
+        line_crossing = { key = "line_crossing" }
+
+
+[static]
+    [static.path]
+        general_image = "/static/general/image"
+        detection_image = "/static/detection/image"
+        detection_video = "/static/detection/video"
+
+
+

@@ -12,3 +12,9 @@ start server -> start stream_loader on another thread ->
 + Accquire lock khi truy xuất vào stream infos của stream stream_loader vì có thể có nhiều luồng cùng truy xuất nó 1 lúc
 + Thêm gRPC của các cái operation thêm, sửa, xóa
 + Sửa là: Xóa -> Thêm
+
+
+
+
+
++ Chuyển việc xử lý của stream event handler sang 1 thư mục mới (không để trong thư mục event_processing nữa)
