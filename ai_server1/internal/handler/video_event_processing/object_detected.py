@@ -176,84 +176,26 @@
 
 import cv2
 
-from .utils.video_event_manager import VideoEventManager
-from .utils.stream_event_manager import StreamEventManager
 from ..object_detection.yolov7.utils.labels import Labels
-from ..object_detection.yolov7.object_detector import ObjectDetector
 
 class ObjectDetected:
     
-    
-    def preprocess_video_event(self, event_input):
-        self.manager.process_video()
-        self.manager.process_path()
-        self.manager.process_directory()
-        self.manager.process_video_writer()
-        self.manager.process_initial_event_data(event_input)
-        self.manager.process_initial_detection_data()
-
-    def postprocess_video_event(self):
-        self.manager.process_save_images()
-        self.manager.process_event_output()
-
-
-    def callback_video(self, detection_results, cap=None):
-        video_cap = self.manager.detection_video.cap
+    def execute(self, manager, detection_results):
+        video_cap = manager.detection_video.cap
         timestamp_ms = video_cap.get(cv2.CAP_PROP_POS_MSEC)
 
         for res in detection_results:
             if res.class_id == Labels.PERSON:
-                self.manager.true_alarm = True
-                if abs(timestamp_ms - self.manager.target_timestamp_ms) < self.manager.detection_delta_timestamp_ms:
-                    self.manager.img_frame = res.img_frame
-                    self.manager.img_frame_with_box = res.img_frame_with_box
-                    self.manager.detection_delta_timestamp_ms = abs(timestamp_ms - self.manager.target_timestamp_ms)
+                manager.true_alarm = True
+                if abs(timestamp_ms - manager.target_timestamp_ms) < manager.detection_delta_timestamp_ms:
+                    manager.img_frame = detection_results.img_frame
+                    manager.img_frame_with_box = detection_results.img_frame_with_box
+                    manager.detection_delta_timestamp_ms = abs(timestamp_ms - manager.target_timestamp_ms)
                 break
-            
-        if not self.manager.true_alarm and abs(timestamp_ms - self.manager.target_timestamp_ms) < self.manager.normal_delta_timestamp_ms:
-            self.manager.img_frame = res.img_frame
-            self.manager.img_frame_with_box = res.img_frame_with_box
-            self.manager.normal_delta_timestamp_ms = abs(timestamp_ms - self.manager.target_timestamp_ms)
 
-        self.manager.video_writer.write(res.img_frame_with_box)
+        if not manager.true_alarm and abs(timestamp_ms - manager.target_timestamp_ms) < manager.normal_delta_timestamp_ms:
+            manager.img_frame = detection_results.img_frame
+            manager.img_frame_with_box = detection_results.img_frame_with_box
+            manager.normal_delta_timestamp_ms = abs(timestamp_ms - manager.target_timestamp_ms)
 
-
-
-    def execute_video(self, event_input, callback):
-        self.manager = VideoEventManager()
-        self.preprocess_video_event(event_input)
-        detector = ObjectDetector()
-        detector.detect(self.manager.detection_video, self.callback_video)
-        self.postprocess_video_event()        
-        event_output = self.manager.get_event_output()
-        callback(event_output)
-
-
-
-
-
-
-
-
-
-
-
-
-    def preprocess_stream_event(self, event_input):
-        self.manager.process_stream_loader(event_input)
-        self.manager.process_detection_stream()
-
-    def callback_stream(self, callback):
-
-        def inner(detection_results):
-            for res in detection_results:
-                if res.class_id == Labels.PERSON:
-
-
-        return inner
-
-    def execute_stream(self, event_input, callback):
-        self.manager = StreamEventManager()
-        detector = ObjectDetector()
-        detector.detect(self.manager.detection_stream, self.callback_stream(callback))
-
+        manager.video_writer.write(detection_results.img_frame_with_box)

@@ -22,7 +22,7 @@ from utils.detection_stream import DetectionStream
 from utils.detection_argument import DetectionArgument
 
 from utils.detection_result import DetectionResult
-
+from utils.detection_results import DetectionResults
 
 
 
@@ -129,24 +129,23 @@ class ObjectDetector:
 
                     # Write results
                     detection_results = list()
+                    img_frame = np.copy(im0)
+                    cur_time = datetime.now().isoformat()
                     for *xyxy, conf, cls in reversed(det):
                         class_name = names[int(cls)]
                         xyxy = list(map(lambda x: float(x), xyxy))
                         center_w_h = xyxy2xywh(torch.tensor(xyxy).view(1, 4))[0].tolist()
                         confident = conf
 
-                        img_frame = np.copy(im0)
 
                         label = f'{names[int(cls)]} {conf:.2f}'
                         plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
 
-                        img_frame_with_box = im0
+                        
+                        detection_results.append(DetectionResult(int(cls), class_name, xyxy, center_w_h, confident))
 
-                        cur_time = datetime.now().isoformat()
-
-                        detection_results.append(DetectionResult(int(cls), class_name, xyxy, center_w_h, confident, img_frame, img_frame_with_box, cur_time, finfo))
-
-                    callback(detection_results, vid_cap)
+                    img_frame_with_box = im0
+                    callback(DetectionResults(detection_results, img_frame, img_frame_with_box, cur_time, finfo, vid_cap))
 
 
                 # Print time (inference + NMS)

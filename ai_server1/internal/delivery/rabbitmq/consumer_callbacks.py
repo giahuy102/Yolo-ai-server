@@ -4,8 +4,8 @@ import json
 
 
 
-from ...handler.event_processing.event_context import EventContext
-from ...handler.event_processing.object_detected import ObjectDetected
+from ...handler.video_event_processing.event_context import EventContext
+from ...handler.video_event_processing.object_detected import ObjectDetected
 from ...entity.event.event_processing.event_processing_input import EventProcessingInput
 
 from ...utils.worker_process_pool import WorkerProcessPool

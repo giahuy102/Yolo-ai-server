@@ -22,6 +22,7 @@ class VideoEventManager:
         self.event_input = event_input
         video_url = event_input.video_url
         self.detection_video = DetectionVideo(video_url)
+        return self
 
     def process_path(self):
         video_extension = Path(self.event_input.video_url).suffix
@@ -31,11 +32,13 @@ class VideoEventManager:
         self.general_image_path = ROOT_PATH + self.general_image_file
         self.detection_image_path = ROOT_PATH + self.detection_image_file
         self.detection_video_path = ROOT_PATH + self.detection_video_file
+        return self
 
     def process_directory(self):
         os.makedirs(ROOT_PATH + PATH_CONFIG["general_image"], exist_ok=True)
         os.makedirs(ROOT_PATH + PATH_CONFIG["detection_image"], exist_ok=True)
         os.makedirs(ROOT_PATH + PATH_CONFIG["detection_video"], exist_ok=True)
+        return self
 
     def process_video_writer(self):
         video_cap = self.detection_video.cap
@@ -43,7 +46,7 @@ class VideoEventManager:
         w = int(video_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         h = int(video_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self.video_writer = cv2.VideoWriter(self.detection_video_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
-
+        return self
 
     def process_initial_event_data(self, event_input):
         self.is_ai_event = False
@@ -57,6 +60,7 @@ class VideoEventManager:
         self.video_url = event_input.video_url
         self.detection_image_url = event_input.detection_image_url
         self.detection_video_url = event_input.detection_video_url
+        return self
 
     def process_initial_detection_data(self):
         self.img_frame = None
@@ -64,17 +68,19 @@ class VideoEventManager:
         self.detection_delta_timestamp_ms = float('inf')
         self.normal_delta_timestamp_ms = float('inf')
         self.true_alarm = False
+        return self
 
     def process_save_images(self):
         cv2.imwrite(self.general_image_path, self.img_frame)
         cv2.imwrite(self.detection_image_path, self.img_frame_with_box)
+        return self
 
     def process_event_output(self):
         self.host = f"{SERVER_CONFIG['scheme']}://{SERVER_CONFIG['host']}:{SERVER_CONFIG['port']}"
         self.image_url = f"{self.host}{self.general_image_file}"
 
         if self.is_ai_event: 
-            # pertimistic trategy
+            # pessimistic trategy
             # detection_image_url and detection_video_url have been assigned in the initial method
             if self.true_alarm:
                 self.detection_image_url = f"{self.host}{self.detection_image_file}"
@@ -83,7 +89,12 @@ class VideoEventManager:
         else:
             self.detection_image_url = f"{self.host}{self.detection_image_file}"
             self.detection_video_url = f"{self.host}{self.detection_video_file}"
+        return self
 
 
     def get_event_output(self):
         return VideoEventOutput(self.event_input.event_id, self.image_url, self.video_url, self.detection_image_url, self.detection_video_url, self.true_alarm)
+
+
+    def set_callback_detection_result(self, callback_detection_result):
+        self.callback_detection_result = callback_detection_result
