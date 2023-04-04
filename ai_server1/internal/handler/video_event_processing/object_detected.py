@@ -181,21 +181,23 @@ from ..object_detection.yolov7.utils.labels import Labels
 class ObjectDetected:
     
     def execute(self, manager, detection_results):
-        video_cap = manager.detection_video.cap
-        timestamp_ms = video_cap.get(cv2.CAP_PROP_POS_MSEC)
+        # video_cap = manager.detection_video.cap
+        # timestamp_ms = video_cap.get(cv2.CAP_PROP_POS_MSEC)
 
-        for res in detection_results:
+        for res in detection_results.results:
             if res.class_id == Labels.PERSON:
                 manager.true_alarm = True
-                if abs(timestamp_ms - manager.target_timestamp_ms) < manager.detection_delta_timestamp_ms:
-                    manager.img_frame = detection_results.img_frame
-                    manager.img_frame_with_box = detection_results.img_frame_with_box
-                    manager.detection_delta_timestamp_ms = abs(timestamp_ms - manager.target_timestamp_ms)
                 break
+        #         if abs(timestamp_ms - manager.target_timestamp_ms) < manager.detection_delta_timestamp_ms:
+        #             manager.img_frame = detection_results.img_frame
+        #             manager.img_frame_with_box = detection_results.img_frame_with_box
+        #             manager.detection_delta_timestamp_ms = abs(timestamp_ms - manager.target_timestamp_ms)
+        #         break
 
-        if not manager.true_alarm and abs(timestamp_ms - manager.target_timestamp_ms) < manager.normal_delta_timestamp_ms:
-            manager.img_frame = detection_results.img_frame
-            manager.img_frame_with_box = detection_results.img_frame_with_box
-            manager.normal_delta_timestamp_ms = abs(timestamp_ms - manager.target_timestamp_ms)
+        # if not manager.true_alarm and abs(timestamp_ms - manager.target_timestamp_ms) < manager.normal_delta_timestamp_ms:
+        #     manager.img_frame = detection_results.img_frame
+        #     manager.img_frame_with_box = detection_results.img_frame_with_box
+        #     manager.normal_delta_timestamp_ms = abs(timestamp_ms - manager.target_timestamp_ms)
 
-        manager.video_writer.write(detection_results.img_frame_with_box)
+        # manager.video_writer.write(detection_results.img_frame_with_box)
+        manager.update_image_with_nearest_timestamp(detection_results)

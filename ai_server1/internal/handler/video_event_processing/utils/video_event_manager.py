@@ -98,3 +98,21 @@ class VideoEventManager:
 
     def set_callback_detection_result(self, callback_detection_result):
         self.callback_detection_result = callback_detection_result
+
+
+    def update_image_with_nearest_timestamp(self, detection_results):
+        video_cap = self.detection_video.cap
+        timestamp_ms = video_cap.get(cv2.CAP_PROP_POS_MSEC)
+        if self.true_alarm:
+            if abs(timestamp_ms - self.target_timestamp_ms) < self.detection_delta_timestamp_ms:
+                self.img_frame = detection_results.img_frame
+                self.img_frame_with_box = detection_results.img_frame_with_box
+                self.detection_delta_timestamp_ms = abs(timestamp_ms - self.target_timestamp_ms)
+        else:
+            if not self.true_alarm and abs(timestamp_ms - self.target_timestamp_ms) < self.normal_delta_timestamp_ms:
+                self.img_frame = detection_results.img_frame
+                self.img_frame_with_box = detection_results.img_frame_with_box
+                self.normal_delta_timestamp_ms = abs(timestamp_ms - self.target_timestamp_ms)
+
+        self.video_writer.write(detection_results.img_frame_with_box)
+

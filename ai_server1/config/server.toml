@@ -44,8 +44,8 @@
         movement = { key = "movement" }
 
     [event.camera]
-        crowd_gathering = { key = "crowd_gathering" }
-        line_crossing = { key = "line_crossing" }
+        crowd_gathering = { key = "crowd_gathering", crowd_threshold = 4 }
+        line_crossing = { key = "line_crossing", crossing_distance_threshold = 1.0 }
 
 
 [static]

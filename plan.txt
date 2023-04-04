@@ -18,3 +18,5 @@ start server -> start stream_loader on another thread ->
 
 
 + Chuyển việc xử lý của stream event handler sang 1 thư mục mới (không để trong thư mục event_processing nữa)
+
++ Event line crossing làm cuối cùng

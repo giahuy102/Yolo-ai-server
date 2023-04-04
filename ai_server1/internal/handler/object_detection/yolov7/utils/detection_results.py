@@ -4,6 +4,6 @@ class DetectionResults:
         self.img_frame = frame
         self.img_frame_with_box = frame_with_box
         self.cur_time = cur_time
-        self.frame_info = frame_info
+        self.frame_info = frame_info # have RTSPStream class type
         self.capture = capture
         

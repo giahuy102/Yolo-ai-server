@@ -2,7 +2,8 @@
 from .utils.video_event_manager import VideoEventManager
 from ..object_detection.yolov7.object_detector import ObjectDetector
 from .object_detected import ObjectDetected
-
+from .crowd_gathering_detected import CrowdGatheringDetected
+from .line_crossing_detected import LineCrossingDetected
 from ....pkg.config.config import config
 
 EVENT_CONFIG = config["event"]
@@ -30,7 +31,11 @@ class VideoEventProcessor:
         event_key = video_event_input.event_key
         if event_key in [IOT_EVENT_CONFIG["door_open"]["key"], IOT_EVENT_CONFIG["movement"]["key"]]:
             self.manager.set_callback_detection_result(ObjectDetected().execute)
-        
+        elif event_key == CAMERA_EVENT_CONFIG["crowd_gathering"]["key"]:
+            self.manager.set_callback_detection_result(CrowdGatheringDetected().execute)
+        elif event_key == CAMERA_EVENT_CONFIG["line_crossing"]["key"]:
+            self.manager.set_callback_detection_result(LineCrossingDetected().execute)
+
         
     def execute_event_frame(self, detection_results):
         callback = self.manager.callback_detection_result

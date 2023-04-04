@@ -79,6 +79,8 @@ class ObjectDetected:
                     self.img_frame_with_box = res.img_frame_with_box
                     self.detection_delta_timestamp_ms = abs(timestamp_ms - self.target_timestamp_ms)
             
+                    self.xyxy = res.xyxy
+                    self.center_w_h = res.center_w_h
                 break
             
         if not self.true_alarm and abs(timestamp_ms - self.target_timestamp_ms) < self.normal_delta_timestamp_ms:
@@ -86,6 +88,9 @@ class ObjectDetected:
             self.img_frame_with_box = res.img_frame_with_box
             self.normal_delta_timestamp_ms = abs(timestamp_ms - self.target_timestamp_ms)
 
+
+            self.xyxy = res.xyxy
+            self.center_w_h = res.center_w_h
 
         print("Shape ", res.img_frame_with_box.shape)
         self.video_writer.write(res.img_frame_with_box)
@@ -147,6 +152,11 @@ class ObjectDetected:
         detector = ObjectDetector()
         detector.detect(self.detection_video, self.callback_video)
 
+
+        print("###########")
+        print(self.xyxy)
+        print(self.center_w_h)
+        print("###########")
 
         cv2.imwrite(self.general_image_path, self.img_frame)
         # if self.img_frame_with_box:
