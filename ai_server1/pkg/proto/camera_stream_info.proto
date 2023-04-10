@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+message SingleCameraStreamResponseData {
+    CameraStreamDetail camera_stream_detail = 1;
+}
+
+
+message CameraStreamDetail {
+    string _id = 1;
+    string camera_name = 2;
+    string status = 3;
+    string rtsp_stream_url = 4;
+    string sfu_rtsp_stream_url = 5;
+    string camera_type = 6;
+    string event_type = 7;
+    float offset_x_begin = 8;
+    float offset_x_end = 9;
+    float offset_y_begin = 10;
+    float offset_y_end = 11;
+    bool is_set_line = 12;
+    string username = 13;
+    string password = 14;
+}
+
+
+message CreateCameraStreamRequest {
+    CameraStreamDetail camera_stream_detail = 1;
+}
+
+message CreateCameraStreamResponse {
+    SingleCameraStreamResponseData data = 1;
+    string message = 2;
+    string status = 3;
+}
+
+
+message UpdateCameraStreamByIdRequest {
+    string _id = 1;
+    CameraStreamDetail camera_stream_detail = 2;
+}
+
+message UpdateCameraStreamByIdResponse {
+    SingleCameraStreamResponseData data = 1;
+    string message = 2;
+    string status = 3;
+}
+
+
+message DeleteCameraStreamByIdRequest {
+    string _id = 1;
+}
+
+message DeleteCameraStreamByIdResponse {
+    SingleCameraStreamResponseData data = 1;
+    string message = 2;
+    string status = 3;
+}
+
+
+service CameraStreamInfoService {
+    rpc CreateCameraStream (CreateCameraStreamRequest) returns (CreateCameraStreamResponse) {};
+    rpc UpdateCameraStreamById (UpdateCameraStreamByIdRequest) returns (UpdateCameraStreamByIdResponse) {};
+    rpc DeleteCameraStreamById (DeleteCameraStreamByIdRequest) returns (DeleteCameraStreamByIdResponse) {};
+}

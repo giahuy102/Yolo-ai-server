@@ -14,11 +14,17 @@
     virtual_host = "/"
     
 
-
+    event_processing_exchange_name = "event_processing"
+    stream_processing_exchange_name = "stream_processing"
 
     [[rabbitmq.exchanges]]
         name = "event_processing"
         type = "topic"
+
+        event_created_with_media_queue_name = "event_created_with_media"
+        event_verified_queue_name = "event_verified"
+
+
         [[rabbitmq.exchanges.queues]]
             name = "event_created_with_media"
             binding_keys = ["event.created.media.iot.*", "event.created.media.camera.*"]
@@ -31,8 +37,11 @@
     [[rabbitmq.exchanges]]
         name = "stream_processsing"
         type = "topic"
+
+        camera_event_new_queue_name = "camera_event_new"
+
         [[rabbitmq.exchanges.queues]]
-            name = "event_new"
+            name = "camera_event_new"
             binding_keys = ["event.new.camera.*"] # not have event.new.iot because iot event is published to another queue of another exchange
             routing_key_prefix = {event_new_camera = "event.new.camera"}
             

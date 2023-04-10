@@ -15,6 +15,10 @@ STATIC_CONFIG = config["static"]
 PATH_CONFIG = STATIC_CONFIG["path"]
 ROOT_PATH = str(Path(__file__).parents[ROOT_INDEX])
 
+EVENT_CONFIG = config["event"]
+IOT_EVENT = EVENT_CONFIG["iot"]
+CAMERA_EVENT = EVENT_CONFIG["camera"]
+
 
 class VideoEventManager:
 
@@ -48,10 +52,12 @@ class VideoEventManager:
         self.video_writer = cv2.VideoWriter(self.detection_video_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
         return self
 
+    def check_is_ai_event(self, event_key):
+        event_with_equal_key = filter(lambda e: e["key"] == event_key, CAMERA_EVENT.values())
+        return True if event_with_equal_key else False
+
     def process_initial_event_data(self, event_input):
-        self.is_ai_event = False
-        if event_input.is_ai_event:
-            self.is_ai_event = True
+        self.is_ai_event = self.check_is_ai_event(event_input.event_key)
         self.start_time = parse(event_input.start_time)
         self.end_time = parse(event_input.end_time)
         self.target_time = parse(event_input.target_time)
@@ -93,7 +99,7 @@ class VideoEventManager:
 
 
     def get_event_output(self):
-        return VideoEventOutput(self.event_input.event_id, self.image_url, self.video_url, self.detection_image_url, self.detection_video_url, self.true_alarm)
+        return VideoEventOutput(self.event_input.event_id, self.image_url, self.video_url, self.detection_image_url, self.detection_video_url, self.true_alarm, self.is_ai_event)
 
 
     def set_callback_detection_result(self, callback_detection_result):
