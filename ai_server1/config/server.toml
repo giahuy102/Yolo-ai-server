@@ -1,67 +1,134 @@
 [server]
-    [server.http]
-        host = "localhost"
-        port = "5000"
-        scheme = "http"
+[server.http]
+host = "localhost"
+port = "5000"
+scheme = "http"
+
+[server.grpc]
+host = "localhost"
+port = "50052"
+scheme = "grpc"
 
 
 [rabbitmq]
-    host = "localhost"
-    username = "guest"
-    password = "guest"
-    port = "5672"
-    scheme = "amqp"
-    virtual_host = "/"
+host = "localhost"
+username = "guest"
+password = "guest"
+port = "5672"
+scheme = "amqp"
+virtual_host = "/"
     
+[rabbitmq.exchanges]
+[rabbitmq.exchanges.event_processing]
+name = "event_processing"
+type = "topic"
 
-    event_processing_exchange_name = "event_processing"
-    stream_processing_exchange_name = "stream_processing"
+[rabbitmq.exchanges.event_processing.queues]
+[rabbitmq.exchanges.event_processing.queues.event_created_with_media]
+name = "event_created_with_media"
+binding_keys = ["event.created.media.iot.*", "event.created.media.camera.*"]
+routing_key_prefix = {event_created_with_media_iot = "event.created.media.iot", event_created_with_media_camera = "event.created.media.camera"}
 
-    [[rabbitmq.exchanges]]
-        name = "event_processing"
-        type = "topic"
-
-        event_created_with_media_queue_name = "event_created_with_media"
-        event_verified_queue_name = "event_verified"
+[rabbitmq.exchanges.event_processing.queues.event_verified]
+name = "event_verified"
+binding_keys = ["event.verified.iot.*", "event.verified.camera.*"]
+routing_key_prefix = {event_verified_iot = "event.verified.iot", event_verified_camera = "event.verified.camera"}
 
 
-        [[rabbitmq.exchanges.queues]]
-            name = "event_created_with_media"
-            binding_keys = ["event.created.media.iot.*", "event.created.media.camera.*"]
+[rabbitmq.exchanges.stream_processing]
+name = "stream_processsing"
+type = "topic"
 
-        [[rabbitmq.exchanges.queues]]
-            name = "event_verified"
-            binding_keys = ["event.verified.iot.*", "event.verified.camera.*"]
-            routing_key_prefix = {event_verified_iot = "event.verified.iot", event_verified_camera = "event.verified.camera"}
+[rabbitmq.exchanges.stream_processing.queues]
+[rabbitmq.exchanges.stream_processing.queues.camera_event_new]
+name = "camera_event_new"
+binding_keys = ["event.new.camera.*"] # not have event.new.iot because iot event is published to another queue of another exchange
+routing_key_prefix = {event_new_camera = "event.new.camera"}
 
-    [[rabbitmq.exchanges]]
-        name = "stream_processsing"
-        type = "topic"
 
-        camera_event_new_queue_name = "camera_event_new"
 
-        [[rabbitmq.exchanges.queues]]
-            name = "camera_event_new"
-            binding_keys = ["event.new.camera.*"] # not have event.new.iot because iot event is published to another queue of another exchange
-            routing_key_prefix = {event_new_camera = "event.new.camera"}
-            
+
 
 
 [event]
-    [event.iot]
-        door_open = { key = "door_open" }
-        movement = { key = "movement" }
+[event.iot]
+door_open = { key = "door_open" }
+movement = { key = "movement" }
 
-    [event.camera]
-        crowd_gathering = { key = "crowd_gathering", crowd_threshold = 4 }
-        line_crossing = { key = "line_crossing", crossing_distance_threshold = 1.0 }
+[event.camera]
+crowd_gathering = { key = "crowd_gathering", crowd_threshold = 4 }
+line_crossing = { key = "line_crossing", crossing_distance_threshold = 1.0 }
 
 
 [static]
-    [static.path]
-        general_image = "/static/general/image"
-        detection_image = "/static/detection/image"
-        detection_video = "/static/detection/video"
+[static.path]
+general_image = "/static/general/image"
+detection_image = "/static/detection/image"
+detection_video = "/static/detection/video"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#     event_processing_exchange_name = "event_processing"
+#     stream_processing_exchange_name = "stream_processing"
+
+#     [[rabbitmq.exchanges]]
+#         name = "event_processing"
+#         type = "topic"
+
+#         event_created_with_media_queue_name = "event_created_with_media"
+#         event_verified_queue_name = "event_verified"
+
+
+#         [[rabbitmq.exchanges.queues]]
+#             name = "event_created_with_media"
+#             binding_keys = ["event.created.media.iot.*", "event.created.media.camera.*"]
+
+#         [[rabbitmq.exchanges.queues]]
+#             name = "event_verified"
+#             binding_keys = ["event.verified.iot.*", "event.verified.camera.*"]
+#             routing_key_prefix = {event_verified_iot = "event.verified.iot", event_verified_camera = "event.verified.camera"}
+
+#     [[rabbitmq.exchanges]]
+#         name = "stream_processsing"
+#         type = "topic"
+
+#         camera_event_new_queue_name = "camera_event_new"
+
+#         [[rabbitmq.exchanges.queues]]
+#             name = "camera_event_new"
+#             binding_keys = ["event.new.camera.*"] # not have event.new.iot because iot event is published to another queue of another exchange
+#             routing_key_prefix = {event_new_camera = "event.new.camera"}
+            
+
+
+# [event]
+#     [event.iot]
+#         door_open = { key = "door_open" }
+#         movement = { key = "movement" }
+
+#     [event.camera]
+#         crowd_gathering = { key = "crowd_gathering", crowd_threshold = 4 }
+#         line_crossing = { key = "line_crossing", crossing_distance_threshold = 1.0 }
+
+
+# [static]
+#     [static.path]
+#         general_image = "/static/general/image"
+#         detection_image = "/static/detection/image"
+#         detection_video = "/static/detection/video"
 
 
 

@@ -7,7 +7,7 @@ CROWD_GATHERING_EVENT_CONFIG = CAMERA_EVENT_CONFIG["crowd_gathering"]
 
 class CrowdGatheringDetected:
 
-    def execute(manager, detection_results, callback):
+    def execute(self, manager, detection_results, callback):
         count = 0
         for res in detection_results.results:
             if res.class_id == Labels.PERSON:

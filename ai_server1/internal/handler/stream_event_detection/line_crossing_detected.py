@@ -9,7 +9,7 @@ LINE_CROSSING_EVENT_CONFIG = CAMERA_EVENT_CONFIG["line_crossing"]
 
 class LineCrossingDetected:
 
-    def execute(manager, detection_results, callback):
+    def execute(self, manager, detection_results, callback):
         found = False
         info = detection_results.frame_info
         [from_x, from_y, to_x, to_y] = info.line_coords

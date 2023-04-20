@@ -14,7 +14,7 @@ class VideoEventProcessor:
 
 
     def preprocess_video_event(self, event_input):
-        self.manager.process_video() \
+        self.manager.process_video(event_input) \
                     .process_path() \
                     .process_directory() \
                     .process_video_writer() \
@@ -44,6 +44,7 @@ class VideoEventProcessor:
     def execute(self, video_event_input, callback):
         self.manager = VideoEventManager()
         self.preprocess_video_event(video_event_input)
+        self.choose_event_callback()
         detector = ObjectDetector()
         detector.detect(self.manager.detection_video, self.execute_event_frame)
         self.postprocess_video_event()        

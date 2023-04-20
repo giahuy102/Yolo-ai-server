@@ -1,6 +1,6 @@
-from enum import Enum
+# from enum import Enum
 
-class Labels(Enum):
+class Labels():
     PERSON = 0
     BICYCLE = 1
     CAR = 2

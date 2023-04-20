@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import camera_stream_info_pb2 as camera__stream__info__pb2
+from . import camera_stream_info_pb2 as camera__stream__info__pb2
 
 
 class CameraStreamInfoServiceStub(object):
@@ -14,25 +14,36 @@ class CameraStreamInfoServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.GetAllCameraStreams = channel.unary_unary(
+                '/CameraStreamInfoService/GetAllCameraStreams',
+                request_serializer=camera__stream__info__pb2.Empty.SerializeToString,
+                response_deserializer=camera__stream__info__pb2.GetAllCameraStreamsResponse.FromString,
+                )
         self.CreateCameraStream = channel.unary_unary(
                 '/CameraStreamInfoService/CreateCameraStream',
                 request_serializer=camera__stream__info__pb2.CreateCameraStreamRequest.SerializeToString,
-                response_deserializer=camera__stream__info__pb2.CreateCameraStreamResponse.FromString,
+                response_deserializer=camera__stream__info__pb2.CameraStreamResponse.FromString,
                 )
         self.UpdateCameraStreamById = channel.unary_unary(
                 '/CameraStreamInfoService/UpdateCameraStreamById',
                 request_serializer=camera__stream__info__pb2.UpdateCameraStreamByIdRequest.SerializeToString,
-                response_deserializer=camera__stream__info__pb2.UpdateCameraStreamByIdResponse.FromString,
+                response_deserializer=camera__stream__info__pb2.CameraStreamResponse.FromString,
                 )
         self.DeleteCameraStreamById = channel.unary_unary(
                 '/CameraStreamInfoService/DeleteCameraStreamById',
                 request_serializer=camera__stream__info__pb2.DeleteCameraStreamByIdRequest.SerializeToString,
-                response_deserializer=camera__stream__info__pb2.DeleteCameraStreamByIdResponse.FromString,
+                response_deserializer=camera__stream__info__pb2.CameraStreamResponse.FromString,
                 )
 
 
 class CameraStreamInfoServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
+
+    def GetAllCameraStreams(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
 
     def CreateCameraStream(self, request, context):
         """Missing associated documentation comment in .proto file."""
@@ -55,20 +66,25 @@ class CameraStreamInfoServiceServicer(object):
 
 def add_CameraStreamInfoServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
+            'GetAllCameraStreams': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAllCameraStreams,
+                    request_deserializer=camera__stream__info__pb2.Empty.FromString,
+                    response_serializer=camera__stream__info__pb2.GetAllCameraStreamsResponse.SerializeToString,
+            ),
             'CreateCameraStream': grpc.unary_unary_rpc_method_handler(
                     servicer.CreateCameraStream,
                     request_deserializer=camera__stream__info__pb2.CreateCameraStreamRequest.FromString,
-                    response_serializer=camera__stream__info__pb2.CreateCameraStreamResponse.SerializeToString,
+                    response_serializer=camera__stream__info__pb2.CameraStreamResponse.SerializeToString,
             ),
             'UpdateCameraStreamById': grpc.unary_unary_rpc_method_handler(
                     servicer.UpdateCameraStreamById,
                     request_deserializer=camera__stream__info__pb2.UpdateCameraStreamByIdRequest.FromString,
-                    response_serializer=camera__stream__info__pb2.UpdateCameraStreamByIdResponse.SerializeToString,
+                    response_serializer=camera__stream__info__pb2.CameraStreamResponse.SerializeToString,
             ),
             'DeleteCameraStreamById': grpc.unary_unary_rpc_method_handler(
                     servicer.DeleteCameraStreamById,
                     request_deserializer=camera__stream__info__pb2.DeleteCameraStreamByIdRequest.FromString,
-                    response_serializer=camera__stream__info__pb2.DeleteCameraStreamByIdResponse.SerializeToString,
+                    response_serializer=camera__stream__info__pb2.CameraStreamResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -79,6 +95,23 @@ def add_CameraStreamInfoServiceServicer_to_server(servicer, server):
  # This class is part of an EXPERIMENTAL API.
 class CameraStreamInfoService(object):
     """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def GetAllCameraStreams(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/CameraStreamInfoService/GetAllCameraStreams',
+            camera__stream__info__pb2.Empty.SerializeToString,
+            camera__stream__info__pb2.GetAllCameraStreamsResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
     def CreateCameraStream(request,
@@ -93,7 +126,7 @@ class CameraStreamInfoService(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/CameraStreamInfoService/CreateCameraStream',
             camera__stream__info__pb2.CreateCameraStreamRequest.SerializeToString,
-            camera__stream__info__pb2.CreateCameraStreamResponse.FromString,
+            camera__stream__info__pb2.CameraStreamResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -110,7 +143,7 @@ class CameraStreamInfoService(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/CameraStreamInfoService/UpdateCameraStreamById',
             camera__stream__info__pb2.UpdateCameraStreamByIdRequest.SerializeToString,
-            camera__stream__info__pb2.UpdateCameraStreamByIdResponse.FromString,
+            camera__stream__info__pb2.CameraStreamResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -127,6 +160,6 @@ class CameraStreamInfoService(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/CameraStreamInfoService/DeleteCameraStreamById',
             camera__stream__info__pb2.DeleteCameraStreamByIdRequest.SerializeToString,
-            camera__stream__info__pb2.DeleteCameraStreamByIdResponse.FromString,
+            camera__stream__info__pb2.CameraStreamResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

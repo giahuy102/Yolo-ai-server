@@ -5,18 +5,25 @@ import time
 import re
 import copy
 
-class StreamLoader(object):  # multiple IP or RTSP cameras
+class StreamLoader:  # multiple IP or RTSP cameras
 
-    # def __new__(cls, stream_infos):
-    #     """
-    #         This should by a singleton object
-    #     """
-    #     if not hasattr(cls, 'instance'):
-    #         cls.instance = super(StreamLoader, cls).__call__(stream_infos)
-    #     return cls.instance
+    _instance = None
+    _lock = Lock()
 
+    @staticmethod
+    def get_instance(stream_infos=list()):
+        with StreamLoader._lock:
+            if not StreamLoader._instance:
+                StreamLoader(stream_infos)
+            return StreamLoader._instance
 
-    def __init__(self, stream_infos):
+    def __init__(self, stream_infos=list()): # let stream_infos a defautl argument for easy to use singleton pattern for multiple time
+        
+        if StreamLoader._instance != None:
+            raise Exception("This class is a singleton! Please access from get_instance method")
+        StreamLoader._instance = self
+        
+
 
         self.infos_lock = Lock()
 
@@ -36,12 +43,11 @@ class StreamLoader(object):  # multiple IP or RTSP cameras
             self.consume_new_stream(key, info)
         print('')  # newline
 
-        # check for common shapes
-        # s = np.stack([letterbox(x, self.img_size, stride=self.stride)[0].shape for x in self.imgs], 0)  # shapes
-        # self.rect = np.unique(s, axis=0).shape[0] == 1  # rect inference if all shapes equal
-        # if not self.rect:
-        #     print('WARNING: Different stream shapes detected. For optimal performance supply similarly-shaped streams.')
-
+            # check for common shapes
+            # s = np.stack([letterbox(x, self.img_size, stride=self.stride)[0].shape for x in self.imgs], 0)  # shapes
+            # self.rect = np.unique(s, axis=0).shape[0] == 1  # rect inference if all shapes equal
+            # if not self.rect:
+            #     print('WARNING: Different stream shapes detected. For optimal performance supply similarly-shaped streams.')
 
     def consume_new_stream(self, key, info):
         # Start the thread to read frames from the video stream

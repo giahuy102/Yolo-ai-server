@@ -9,7 +9,7 @@ from ....utils.random_generator import RandomGenerator
 from .video_event_output import VideoEventOutput
 
 
-ROOT_INDEX = 3
+ROOT_INDEX = 4
 SERVER_CONFIG = config["server"]["http"]
 STATIC_CONFIG = config["static"]
 PATH_CONFIG = STATIC_CONFIG["path"]
@@ -53,7 +53,7 @@ class VideoEventManager:
         return self
 
     def check_is_ai_event(self, event_key):
-        event_with_equal_key = filter(lambda e: e["key"] == event_key, CAMERA_EVENT.values())
+        event_with_equal_key = list(filter(lambda e: e["key"] == event_key, CAMERA_EVENT.values()))
         return True if event_with_equal_key else False
 
     def process_initial_event_data(self, event_input):
@@ -64,8 +64,9 @@ class VideoEventManager:
         self.target_timestamp_ms = (self.target_time - self.start_time).total_seconds() * (10 ** 3)
 
         self.video_url = event_input.video_url
+        self.image_url = event_input.image_url
         self.detection_image_url = event_input.detection_image_url
-        self.detection_video_url = event_input.detection_video_url
+        self.detection_video_url = self.video_url
         return self
 
     def process_initial_detection_data(self):
@@ -83,16 +84,18 @@ class VideoEventManager:
 
     def process_event_output(self):
         self.host = f"{SERVER_CONFIG['scheme']}://{SERVER_CONFIG['host']}:{SERVER_CONFIG['port']}"
-        self.image_url = f"{self.host}{self.general_image_file}"
+    
 
         if self.is_ai_event: 
             # pessimistic trategy
             # detection_image_url and detection_video_url have been assigned in the initial method
             if self.true_alarm:
+                self.image_url = f"{self.host}{self.general_image_file}"
                 self.detection_image_url = f"{self.host}{self.detection_image_file}"
                 self.detection_video_url = f"{self.host}{self.detection_video_file}"                
             self.true_alarm = True
         else:
+            self.image_url = f"{self.host}{self.general_image_file}"
             self.detection_image_url = f"{self.host}{self.detection_image_file}"
             self.detection_video_url = f"{self.host}{self.detection_video_file}"
         return self

@@ -11,21 +11,40 @@ EXCHANGES = BROKER_CONFIG["exchanges"]
 
 class Consumers:
 
-    def __init__(self, exchanges = EXCHANGES):
+    def __init__(self):
         self.consumers = list()
-        self.exchanges = exchanges
 
     def start(self):
         callback_context = CallbackContext()
-        for exchange in self.exchanges:
-            for queue in exchange["queues"]:
-                callback_obj = callback_context.get_event_callback(exchange["name"], queue["name"])
-                if callback_obj:
-                    arg_exchange = Exchange(exchange["name"])
-                    arg_queue = Queue(queue["name"], queue["binding_keys"])
-                    consumer = ThreadConsumer(arg_exchange, arg_queue, callback_obj.execute)
-                    self.consumers.append(consumer)
-                    consumer.start()
+        exchange = EXCHANGES["event_processing"]
+        queue = exchange["queues"]["event_created_with_media"]
+
+        exchange_name = exchange["name"]
+        queue_name = queue["name"]
+        queue_binding_keys = queue["binding_keys"]
+        callback_obj = callback_context.get_event_callback(exchange_name, queue_name)
+
+        if callback_obj:
+            arg_exchange = Exchange(exchange_name)
+            arg_queue = Queue(queue_name, queue_binding_keys)
+            consumer = ThreadConsumer(arg_exchange, arg_queue, callback_obj.execute)
+            self.consumers.append(consumer)
+            consumer.start()
+
+
+        # for exchange in self.exchanges:
+        #     exchange_name = self.exchanges[exchange]["name"]
+        #     queues = self.exchanges[exchange]
+        #     for queue in queues:
+        #         queue_name = queues[queue]["name"]
+        #         queue_binding_keys = queues[queue]["binding_keys"]
+        #         callback_obj = callback_context.get_event_callback(exchange_name, queue_name)
+        #         if callback_obj:
+        #             arg_exchange = Exchange(exchange_name)
+        #             arg_queue = Queue(queue_name, queue_binding_keys)
+        #             consumer = ThreadConsumer(arg_exchange, arg_queue, callback_obj.execute)
+        #             self.consumers.append(consumer)
+        #             consumer.start()
 
 
     # @staticmethod

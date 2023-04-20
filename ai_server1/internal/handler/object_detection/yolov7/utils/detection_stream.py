@@ -28,34 +28,40 @@ class DetectionStream:
 
 
     def __next__(self):
-        self.count += 1
+        
 
 
         stream_infos, img0, just_updated_infos = self.stream_loader.get_streams()
-        if just_updated_infos:
-            self.check_common_shape(img0)
+        if stream_infos:
 
-        sources = [info.rtsp_url for info in stream_infos]
+            self.count += 1
+            if just_updated_infos:
+                self.check_common_shape(img0)
 
-        # img0 = self.stream_loader.get_frames().copy()
-        # stream_infos = copy.deepcopy(list(self.stream_loader.get_stream_infos().values()))
-        # sources = [info.rtsp_url for info in stream_infos.values()]
+            sources = [info.rtsp_url for info in stream_infos]
+
+            # img0 = self.stream_loader.get_frames().copy()
+            # stream_infos = copy.deepcopy(list(self.stream_loader.get_stream_infos().values()))
+            # sources = [info.rtsp_url for info in stream_infos.values()]
 
 
 
-        if cv2.waitKey(1) == ord('q'):  # q to quit
-            cv2.destroyAllWindows()
-            raise StopIteration
+            if cv2.waitKey(1) == ord('q'):  # q to quit
+                cv2.destroyAllWindows()
+                raise StopIteration
 
-        # Letterbox
-        img = [letterbox(x, self.img_size, auto=self.rect, stride=self.stride)[0] for x in img0]
+            # Letterbox
+            img = [letterbox(x, self.img_size, auto=self.rect, stride=self.stride)[0] for x in img0]
 
-        # Stack
-        img = np.stack(img, 0)
+            # Stack
+            img = np.stack(img, 0)
 
-        # Convert
-        img = img[:, :, :, ::-1].transpose(0, 3, 1, 2)  # BGR to RGB, to bsx3x416x416
-        img = np.ascontiguousarray(img)
+            # Convert
+            img = img[:, :, :, ::-1].transpose(0, 3, 1, 2)  # BGR to RGB, to bsx3x416x416
+            img = np.ascontiguousarray(img)
 
-        return sources, img, img0, None, stream_infos
+            return sources, img, img0, None, stream_infos, True
+
+        else:
+            return None, None, None, None, None, False
 

@@ -19,6 +19,11 @@ class DetectionVideo:
 
     def __next__(self):
         ret_val, img0 = self.cap.read()
+
+        if self.frame == 20:
+            self.cap.release()
+            raise StopIteration
+
         if not ret_val:
             self.cap.release()
             raise StopIteration
@@ -34,7 +39,7 @@ class DetectionVideo:
         img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
         img = np.ascontiguousarray(img)
 
-        return source, img, img0, self.cap, None
+        return source, img, img0, self.cap, None, True
 
 
     def new_video(self, url):

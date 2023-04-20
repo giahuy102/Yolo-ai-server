@@ -7,7 +7,7 @@ from ...object_detection.yolov7.utils.detection_stream import DetectionStream
 from ....utils.random_generator import RandomGenerator
 from .stream_event_output import StreamEventOutput
 
-ROOT_INDEX = 3
+ROOT_INDEX = 4
 SERVER_CONFIG = config["server"]["http"]
 STATIC_CONFIG = config["static"]
 PATH_CONFIG = STATIC_CONFIG["path"]
@@ -16,7 +16,7 @@ ROOT_PATH = str(Path(__file__).parents[ROOT_INDEX])
 class StreamEventManager:
     
     def process_stream_loader(self, event_input):
-        self.stream_loader = StreamLoader(event_input.stream_infos)
+        self.stream_loader = StreamLoader.get_instance(event_input.stream_infos)
         return self
 
     def process_detection_stream(self):
@@ -68,5 +68,12 @@ class StreamEventManager:
         general_image_path, detection_image_path = self.gen_image_paths(general_image_file, detection_image_file)
         general_image_url, detection_image_url = self.gen_image_urls(general_image_file, detection_image_file)
         self.save_images(general_image_path, detection_image_path, detection_results.img_frame, detection_results.img_frame_with_box)
-        event_output = StreamEventOutput(frame_info.event_key, detection_results.cur_time, general_image_url, detection_image_url)
+        event_output = StreamEventOutput(frame_info.camera_id, frame_info.event_key, detection_results.cur_time, general_image_url, detection_image_url)
+
+        # print("#################")
+        # print(frame_info.camera_id)
+        # print(frame_info.event_key)
+        # print(detection_results.cur_time)
+        # print(general_image_url)
+        # print(detection_image_url)
         callback(event_output)
