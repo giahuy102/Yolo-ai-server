@@ -68,7 +68,7 @@ class StreamEventManager:
         general_image_path, detection_image_path = self.gen_image_paths(general_image_file, detection_image_file)
         general_image_url, detection_image_url = self.gen_image_urls(general_image_file, detection_image_file)
         self.save_images(general_image_path, detection_image_path, detection_results.img_frame, detection_results.img_frame_with_box)
-        event_output = StreamEventOutput(frame_info.camera_id, frame_info.event_key, detection_results.cur_time, general_image_url, detection_image_url)
+        event_output = StreamEventOutput(frame_info.camera_id, frame_info.event_key, detection_results.cur_time, general_image_url, detection_image_url, frame_info.line_coords)
 
         # print("#################")
         # print(frame_info.camera_id)

@@ -4,6 +4,7 @@ import copy
 
 from utils.datasets import letterbox
 
+from .threading_condition import stream_condition
 
 
 class DetectionStream:
@@ -32,6 +33,10 @@ class DetectionStream:
 
 
         stream_infos, img0, just_updated_infos = self.stream_loader.get_streams()
+        if not stream_infos:
+            with stream_condition:
+                stream_condition.wait()
+
         if stream_infos:
 
             self.count += 1

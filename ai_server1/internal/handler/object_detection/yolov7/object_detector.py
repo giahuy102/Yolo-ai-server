@@ -24,7 +24,7 @@ from utils.detection_argument import DetectionArgument
 from utils.detection_result import DetectionResult
 from utils.detection_results import DetectionResults
 
-
+from .model_loader import ModelLoader
 
 
 class ObjectDetector:
@@ -35,40 +35,57 @@ class ObjectDetector:
         # print((opt.weight_dir / opt.weights).exists())
 
 
-        # Initialize
-        set_logging()
-        device = select_device(opt.device)
-        half = device.type != 'cpu'  # half precision only supported on CUDA
 
-        # Load model
-        model = attempt_load(str(opt.weight_dir / opt.weights), map_location=device)  # load FP32 model
+
+        # # Initialize
+        # set_logging()
+        # device = select_device(opt.device)
+        # half = device.type != 'cpu'  # half precision only supported on CUDA
+
+        # # Load model
+        # model = attempt_load(str(opt.weight_dir / opt.weights), map_location=device)  # load FP32 model
         
         
         
-        stride = int(model.stride.max())  # model stride
-        imgsz = check_img_size(opt.img_size, s=stride)  # check img_size
+        # stride = int(model.stride.max())  # model stride
+        # imgsz = check_img_size(opt.img_size, s=stride)  # check img_size
 
-        if opt.trace:
-            model = TracedModel(model, device, opt.img_size)
+        # if opt.trace:
+        #     model = TracedModel(model, device, opt.img_size)
 
-        if half:
-            model.half()  # to FP16
+        # if half:
+        #     model.half()  # to FP16
 
-        # Second-stage classifier
-        classify = False
-        if classify:
-            modelc = load_classifier(name='resnet101', n=2)  # initialize
-            modelc.load_state_dict(torch.load('weights/resnet101.pt', map_location=device)['model']).to(device).eval()
+        # # Second-stage classifier
+        # classify = False
+        # if classify:
+        #     modelc = load_classifier(name='resnet101', n=2)  # initialize
+        #     modelc.load_state_dict(torch.load('weights/resnet101.pt', map_location=device)['model']).to(device).eval()
 
 
 
-        # Get names and colors
-        names = model.module.names if hasattr(model, 'module') else model.names
-        colors = [[random.randint(0, 255) for _ in range(3)] for _ in names]
+        # # Get names and colors
+        # names = model.module.names if hasattr(model, 'module') else model.names
+        # colors = [[random.randint(0, 255) for _ in range(3)] for _ in names]
 
-        # Run inference
-        if device.type != 'cpu':
-            model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(model.parameters())))  # run once
+        # # Run inference
+        # if device.type != 'cpu':
+        #     model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(model.parameters())))  # run once
+        
+        
+        
+        model_loader = ModelLoader.get_instance()
+        model = model_loader.get_model()
+        device = model_loader.get_device()
+        imgsz = model_loader.get_imgsz()
+        names = model_loader.get_names()
+        colors = model_loader.get_colors()
+        half = model_loader.get_half()
+        classify = model_loader.get_classify()
+        modelc = model_loader.get_modelc()
+
+
+        
         old_img_w = old_img_h = imgsz
         old_img_b = 1
 

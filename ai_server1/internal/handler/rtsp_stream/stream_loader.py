@@ -5,6 +5,8 @@ import time
 import re
 import copy
 
+from ..object_detection.yolov7.utils.threading_condition import stream_condition
+
 class StreamLoader:  # multiple IP or RTSP cameras
 
     _instance = None
@@ -71,15 +73,26 @@ class StreamLoader:  # multiple IP or RTSP cameras
 
 
     def add_stream(self, stream_id, info):
+        need_notify = False
+
         self.infos_lock.acquire()
         if stream_id not in self.stream_infos:
             self.stream_infos[stream_id] = info
             self.frames[stream_id] = None
 
-        self.consume_new_stream(stream_id, info)
+            self.consume_new_stream(stream_id, info)
 
-        self.just_updated_infos = True
+            self.just_updated_infos = True
+
+            if len(self.stream_infos == 1):
+                need_notify = True
+
+        if need_notify: 
+            with stream_condition:
+                stream_condition.notify_all()
+
         self.infos_lock.release()
+
     
     def remove_stream(self, stream_id):
         self.infos_lock.acquire()
