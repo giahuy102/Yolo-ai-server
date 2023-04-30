@@ -1,0 +1,15 @@
+version: "3.98"
+services:
+  ai-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/usr/app
+    working_dir: /usr/app
+    command: >
+      sh -c "python3 app.py"
+    restart: always
+    ports:
+      - "5000:5000"
+      - "50052:50052"
