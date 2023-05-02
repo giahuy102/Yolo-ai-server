@@ -8,6 +8,8 @@ import torch.backends.cudnn as cudnn
 from numpy import random
 import numpy as np
 
+from threading import Lock
+
 
 from models.experimental import attempt_load
 from utils.datasets import LoadStreams, LoadImages
@@ -23,6 +25,7 @@ from utils.detection_argument import DetectionArgument
 class ModelLoader:
 
     _instance = None
+    _singleton_lock = Lock()
 
     def __init__(self, opt=DetectionArgument()):
         if ModelLoader._instance != None:
@@ -93,6 +96,7 @@ class ModelLoader:
 
     @staticmethod
     def get_instance():
-        if ModelLoader._instance == None:
-            ModelLoader()
-        return ModelLoader._instance
+        with ModelLoader._singleton_lock:
+            if ModelLoader._instance == None:
+                ModelLoader()
+            return ModelLoader._instance

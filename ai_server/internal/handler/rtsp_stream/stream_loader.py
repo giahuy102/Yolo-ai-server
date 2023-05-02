@@ -10,11 +10,11 @@ from ..object_detection.yolov7.utils.threading_condition import stream_condition
 class StreamLoader:  # multiple IP or RTSP cameras
 
     _instance = None
-    _lock = Lock()
+    _singleton_lock = Lock()
 
     @staticmethod
     def get_instance(stream_infos=list()):
-        with StreamLoader._lock:
+        with StreamLoader._singleton_lock:
             if not StreamLoader._instance:
                 StreamLoader(stream_infos)
             return StreamLoader._instance

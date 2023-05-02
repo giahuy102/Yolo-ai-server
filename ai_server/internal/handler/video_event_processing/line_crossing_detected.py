@@ -9,7 +9,7 @@ LINE_CROSSING_EVENT_CONFIG = CAMERA_EVENT_CONFIG["line_crossing"]
 
 class LineCrossingDetected:
 
-    def execute(manager, detection_results):
+    def execute(self, manager, detection_results):
         # Not like stream_event_processing, don't use detection_results.frame_info because that info is None
         [from_x, from_y, to_x, to_y] = manager.event_input.line_coords
         pline_from = np.array([from_x, from_y])
