@@ -15,7 +15,7 @@ def main():
     stream_detector = StreamDetector()
     stream_detector.start()
     app = Flask(__name__)
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5005)
 
 
 
