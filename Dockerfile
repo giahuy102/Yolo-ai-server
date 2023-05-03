@@ -12,4 +12,4 @@ COPY . .
 
 EXPOSE 5005
 
-CMD [ "python3", "-u", "app.py" ]
+CMD [ "python3", "app.py" ]
