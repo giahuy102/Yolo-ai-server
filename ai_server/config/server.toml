@@ -1,13 +1,23 @@
 [server]
 [server.http]
 host = "localhost"
-port = "5000"
+port = "5005"
 scheme = "http"
 
 [server.grpc]
 host = "localhost"
 port = "50052"
 scheme = "grpc"
+
+[api_server]
+[api_server.grpc]
+scheme = "grpc"
+host = "node-api-server"
+port = "50051"
+[api_server.http]
+scheme = "http"
+host = "node-api-server"
+port = "3000"
 
 
 [rabbitmq]

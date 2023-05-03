@@ -7,6 +7,9 @@ from ..rabbitmq.utils.queue import Queue
 from ...handler.stream_event_detection.stream_event_detector import StreamEventDetector
 from ...handler.stream_event_detection.utils.stream_event_input import StreamEventInput
 
+from ...grpc_client.camera_stream_info_handler import CameraStreamHandler
+from ..utils.stream_utils import StreamUtils
+
 BROKER_CONFIG = config["rabbitmq"]
 EXCHANGES = BROKER_CONFIG["exchanges"]
 EVENT_CONFIG = config["event"]
@@ -35,7 +38,14 @@ class StreamDetector:
         producer.produce_message(routing_key, json_event_output)
 
     def start_detector(self):
-        stream_event_input = StreamEventInput([])
+        stream_infos = list()
+        stream_utils = StreamUtils()
+        handler = CameraStreamHandler()
+        camera_streams = handler.get_all_camera_streams()
+        for camera in camera_streams:
+            stream_infos.append(stream_utils.parse_stream_info(camera))
+
+        stream_event_input = StreamEventInput(stream_infos)
         stream_event_detector = StreamEventDetector()
         stream_event_detector.execute(stream_event_input, self.callback_event_output)
 

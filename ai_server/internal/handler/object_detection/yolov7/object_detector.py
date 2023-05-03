@@ -24,10 +24,17 @@ from utils.detection_argument import DetectionArgument
 from utils.detection_result import DetectionResult
 from utils.detection_results import DetectionResults
 
+from utils.labels import Labels
+
 from .model_loader import ModelLoader
 
+PERSON_THRESHOLD = 0.38
 
 class ObjectDetector:
+
+    def satisfy_person_condition(self, label, confident):
+        return confident >= PERSON_THRESHOLD and label == Labels.PERSON
+
 
     def detect(self, detection_object, callback, opt=DetectionArgument()):  
 
@@ -155,12 +162,13 @@ class ObjectDetector:
                             center_w_h = xyxy2xywh(torch.tensor(xyxy).view(1, 4))[0].tolist()
                             confident = conf
 
+                            if self.satisfy_person_condition(int(cls), confident):
 
-                            label = f'{names[int(cls)]} {conf:.2f}'
-                            plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
+                                label = f'{names[int(cls)]} {conf:.2f}'
+                                plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
 
-                            
-                            detection_results.append(DetectionResult(int(cls), class_name, xyxy, center_w_h, confident))
+                                
+                                detection_results.append(DetectionResult(int(cls), class_name, xyxy, center_w_h, confident))
 
                         img_frame_with_box = im0
                         callback(DetectionResults(detection_results, img_frame, img_frame_with_box, cur_time, finfo, vid_cap))
