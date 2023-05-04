@@ -84,7 +84,7 @@ class StreamLoader:  # multiple IP or RTSP cameras
 
             self.just_updated_infos = True
 
-            if len(self.stream_infos == 1):
+            if len(self.stream_infos) == 1:
                 need_notify = True
 
         if need_notify: 

@@ -12,6 +12,6 @@ class CrowdGatheringDetected:
         for res in detection_results.results:
             if res.class_id == Labels.PERSON:
                 count += 1
-        if count > CROWD_GATHERING_EVENT_CONFIG["crowd_threshold"]:
+        if count >= CROWD_GATHERING_EVENT_CONFIG["crowd_threshold"]:
             manager.true_alarm = True
         manager.update_image_with_nearest_timestamp(detection_results)

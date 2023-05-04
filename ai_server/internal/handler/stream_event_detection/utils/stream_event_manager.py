@@ -14,7 +14,12 @@ PATH_CONFIG = STATIC_CONFIG["path"]
 ROOT_PATH = str(Path(__file__).parents[ROOT_INDEX])
 
 class StreamEventManager:
+
+    def __init__(self):
+        self.camera_event_distance_with_same_type = dict()
     
+    
+
     def process_stream_loader(self, event_input):
         self.stream_loader = StreamLoader.get_instance(event_input.stream_infos)
         return self

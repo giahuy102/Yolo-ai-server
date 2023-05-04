@@ -12,5 +12,6 @@ class CameraStreamHandler:
     def get_all_camera_streams(self):
         channel = grpc.insecure_channel(f"{TARGET_GRPC_SERVER['host']}:{TARGET_GRPC_SERVER['port']}")
         stub = camera_stream_info_pb2_grpc.CameraStreamInfoServiceStub(channel)
-        camera_streams = stub.GetAllCameraStreams(camera_stream_info_pb2.Empty()).camera_streams
+        res = stub.GetAllCameraStreams(camera_stream_info_pb2.Empty())
+        camera_streams = res.camera_streams
         return camera_streams

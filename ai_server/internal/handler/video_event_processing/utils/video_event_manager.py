@@ -102,6 +102,7 @@ class VideoEventManager:
 
 
     def get_event_output(self):
+        print(VideoEventOutput(self.event_input.event_id, self.image_url, self.video_url, self.detection_image_url, self.detection_video_url, self.true_alarm, self.is_ai_event).to_json())
         return VideoEventOutput(self.event_input.event_id, self.image_url, self.video_url, self.detection_image_url, self.detection_video_url, self.true_alarm, self.is_ai_event)
 
 

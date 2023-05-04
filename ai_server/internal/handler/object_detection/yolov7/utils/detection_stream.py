@@ -50,10 +50,10 @@ class DetectionStream:
             # sources = [info.rtsp_url for info in stream_infos.values()]
 
 
-
-            if cv2.waitKey(1) == ord('q'):  # q to quit
-                cv2.destroyAllWindows()
-                raise StopIteration
+            # Not used for OpenCV headless
+            # if cv2.waitKey(1) == ord('q'):  # q to quit
+            #     cv2.destroyAllWindows()
+            #     raise StopIteration
 
             # Letterbox
             img = [letterbox(x, self.img_size, auto=self.rect, stride=self.stride)[0] for x in img0]

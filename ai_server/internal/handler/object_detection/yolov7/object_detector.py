@@ -1,5 +1,6 @@
 import time
 from datetime import datetime
+import pytz
 from pathlib import Path
 
 import cv2
@@ -29,6 +30,7 @@ from utils.labels import Labels
 from .model_loader import ModelLoader
 
 PERSON_THRESHOLD = 0.38
+TIMEZONE = pytz.timezone('Asia/Ho_Chi_Minh')
 
 class ObjectDetector:
 
@@ -155,7 +157,7 @@ class ObjectDetector:
                         # Write results
                         detection_results = list()
                         img_frame = np.copy(im0)
-                        cur_time = datetime.now().isoformat()
+                        cur_time = datetime.now(TIMEZONE).isoformat()
                         for *xyxy, conf, cls in reversed(det):
                             class_name = names[int(cls)]
                             xyxy = list(map(lambda x: float(x), xyxy))
