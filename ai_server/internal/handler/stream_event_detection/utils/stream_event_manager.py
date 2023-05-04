@@ -1,5 +1,6 @@
 import cv2
 import os
+from datetime import datetime
 from pathlib import Path
 from ...rtsp_stream.stream_loader import StreamLoader
 from .....pkg.config.config import config
@@ -13,12 +14,28 @@ STATIC_CONFIG = config["static"]
 PATH_CONFIG = STATIC_CONFIG["path"]
 ROOT_PATH = str(Path(__file__).parents[ROOT_INDEX])
 
+EVENT_CONFIG = config["event"]
+CAMERA_EVENT = EVENT_CONFIG["camera"]
+SAME_TYPE_SPAM_THRESHOLD = CAMERA_EVENT["same_event_type_spam_prevention_threshold"]
+
 class StreamEventManager:
 
     def __init__(self):
         self.camera_event_distance_with_same_type = dict()
     
-    
+    def allow_detection(self, event_key, cur_time):
+        if event_key not in self.camera_event_distance_with_same_type:
+            self.camera_event_distance_with_same_type[event_key] = cur_time
+            return True
+        else:
+            dis = (datetime.fromisoformat(cur_time) - datetime.fromisoformat(self.camera_event_distance_with_same_type[event_key])).total_seconds()
+            
+            if dis >= SAME_TYPE_SPAM_THRESHOLD:
+                self.camera_event_distance_with_same_type[event_key] = cur_time
+                return True
+            else:
+                return False
+
 
     def process_stream_loader(self, event_input):
         self.stream_loader = StreamLoader.get_instance(event_input.stream_infos)

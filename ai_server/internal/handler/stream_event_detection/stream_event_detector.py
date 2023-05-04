@@ -19,9 +19,9 @@ class StreamEventDetector:
     def execute_event_frame(self, detection_results):
         frame_info = detection_results.frame_info
         event_key = frame_info.event_key
-        if event_key in [IOT_EVENT_CONFIG["door_open"]["key"], IOT_EVENT_CONFIG["movement"]["key"]]:
-            ObjectDetected().execute(self.manager, detection_results, self.manager.callback_output) 
-        elif event_key == CAMERA_EVENT_CONFIG["crowd_gathering"]["key"]:
+        # if event_key in [IOT_EVENT_CONFIG["door_open"]["key"], IOT_EVENT_CONFIG["movement"]["key"]]:
+        #     ObjectDetected().execute(self.manager, detection_results, self.manager.callback_output) 
+        if event_key == CAMERA_EVENT_CONFIG["crowd_gathering"]["key"]:
             CrowdGatheringDetected().execute(self.manager, detection_results, self.manager.callback_output)
         elif event_key == CAMERA_EVENT_CONFIG["line_crossing"]["key"]:
             LineCrossingDetected().execute(self.manager, detection_results, self.manager.callback_output)

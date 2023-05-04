@@ -53,7 +53,7 @@ class VideoEventManager:
         return self
 
     def check_is_ai_event(self, event_key):
-        event_with_equal_key = list(filter(lambda e: e["key"] == event_key, CAMERA_EVENT.values()))
+        event_with_equal_key = list(filter(lambda e: type(e) is dict and e["key"] == event_key, CAMERA_EVENT.values()))
         return True if event_with_equal_key else False
 
     def process_initial_event_data(self, event_input):

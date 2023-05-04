@@ -4,6 +4,8 @@ import time
 
 from utils.datasets import letterbox
 
+MAX_FRAME = 30
+
 class DetectionVideo:
     def __init__(self, video_url, img_size=640, stride=32):
         self.mode = 'video'
@@ -20,7 +22,7 @@ class DetectionVideo:
     def __next__(self):
         ret_val, img0 = self.cap.read()
 
-        if self.frame == 20:
+        if self.frame >= MAX_FRAME:
             self.cap.release()
             raise StopIteration
 
