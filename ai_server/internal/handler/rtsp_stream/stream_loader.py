@@ -4,6 +4,7 @@ from threading import Thread, Lock
 import time
 import re
 import copy
+import logging
 
 from ..object_detection.yolov7.utils.threading_condition import stream_condition
 
@@ -56,14 +57,18 @@ class StreamLoader:  # multiple IP or RTSP cameras
         # url = eval(info.rtsp_stream) if info.rtsp_stream.isnumeric() else info.rtsp_stream
         url = info.rtsp_url
         cap = cv2.VideoCapture(url)
-        assert cap.isOpened(), f'Failed to open {url}'
+
+        if not cap.isOpened():
+            raise Exception(f"Failed to open {url} for detection")
+
+        # assert cap.isOpened(), f'Failed to open {url}'
         w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self.fps = cap.get(cv2.CAP_PROP_FPS) % 100 # suppose all streams have same fps
 
         _, self.frames[key] = cap.read()  # guarantee first frame
         thread = Thread(target=self.update, args=([key, cap]), daemon=True)
-        print(f' success ({w}x{h} at {self.fps:.2f} FPS).')
+        logging.info(f' success ({w}x{h} at {self.fps:.2f} FPS).')
         thread.start()
 
 
@@ -73,50 +78,68 @@ class StreamLoader:  # multiple IP or RTSP cameras
 
 
     def add_stream(self, stream_id, info):
-        need_notify = False
+        try:
+            need_notify = False
 
-        self.infos_lock.acquire()
-        if stream_id not in self.stream_infos:
-            self.stream_infos[stream_id] = info
-            self.frames[stream_id] = None
+            self.infos_lock.acquire()
+            if stream_id not in self.stream_infos:
+                self.stream_infos[stream_id] = info
+                self.frames[stream_id] = None
 
-            self.consume_new_stream(stream_id, info)
+                self.consume_new_stream(stream_id, info)
 
-            self.just_updated_infos = True
+                self.just_updated_infos = True
 
-            if len(self.stream_infos) == 1:
-                need_notify = True
+                if len(self.stream_infos) == 1:
+                    need_notify = True
 
-        if need_notify: 
-            with stream_condition:
-                stream_condition.notify_all()
+            if need_notify:
+                logging.info("Notify to all threads which is waiting for incoming streams") 
+                with stream_condition:
+                    stream_condition.notify_all()
 
-        self.infos_lock.release()
+        except Exception as e:
+            raise e
+        else:
+            logging.info(f"Add new stream {stream_id} successfully for detection")
+        finally:
+            self.infos_lock.release()
 
     
     def remove_stream(self, stream_id):
-        self.infos_lock.acquire()
-        del self.stream_infos[stream_id]
-        del self.frames[stream_id]
+        try:
+            self.infos_lock.acquire()
+            del self.stream_infos[stream_id]
+            del self.frames[stream_id]
 
-        self.just_updated_infos = True
-        self.infos_lock.release()
+            self.just_updated_infos = True
+        except Exception as e:
+            raise e
+        else:
+            logging.info(f"Remove stream {stream_id} successfully from detection")
+        finally:
+            self.infos_lock.release()
 
     def update_stream(self, old_stream_id, info):
-        self.infos_lock.acquire()
+        try:
+            self.infos_lock.acquire()
 
-        if old_stream_id in self.stream_infos:
-            old_info = self.stream_infos[old_stream_id]
+            if old_stream_id in self.stream_infos:
+                old_info = self.stream_infos[old_stream_id]
 
-            del self.stream_infos[old_stream_id]
-            del self.frames[old_stream_id]
-            self.stream_infos[info.stream_id] = info
-            self.frames[info.stream_id] = None
-            if old_info.rtsp_url != info.rtsp_url:
-                self.consume_new_stream(info.stream_id, info)
-                self.just_updated_infos = True
-
-        self.infos_lock.release()
+                del self.stream_infos[old_stream_id]
+                del self.frames[old_stream_id]
+                self.stream_infos[info.stream_id] = info
+                self.frames[info.stream_id] = None
+                if old_info.rtsp_url != info.rtsp_url:
+                    self.consume_new_stream(info.stream_id, info)
+                    self.just_updated_infos = True
+        except Exception as e:
+            raise e
+        else:
+            logging.info(f"Update stream {old_stream_id} successfully for detection")
+        finally:
+            self.infos_lock.release()
 
 
     def get_streams(self):
@@ -162,8 +185,9 @@ class StreamLoader:  # multiple IP or RTSP cameras
                 self.infos_lock.release()
                 n = 0
             time.sleep(1 / self.fps)  # wait time
-
-
+        else:
+            self.remove_stream(key)
+            logging.info(f"Remove stream {key} from detection because of closed stream")
 
     # def __iter__(self):
     #     self.count = -1

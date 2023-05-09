@@ -13,7 +13,7 @@ services:
       sh -c "python3 -u app.py" 
     # command: >
     #   sh -c "python3 app.py" 
-    restart: always
+    # restart: always
     ports:
       - "5005:5005"
       - "50052:50052"

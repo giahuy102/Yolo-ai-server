@@ -1,6 +1,7 @@
 import grpc
 from concurrent import futures
 import threading
+import logging
 
 from ....pkg.grpc import camera_stream_info_pb2_grpc
 from .handler.camera_stream_info_handler import CameraStreamInfoHandler
@@ -19,7 +20,7 @@ class GrpcServer:
     def start_grpc_server(self):
         self.server.add_insecure_port(f"[::]:{GRPC_SERVER['port']}")
         self.server.start()
-        print(f"Server started listening on port {GRPC_SERVER['port']}...")
+        logging.info(f"Server started listening on port {GRPC_SERVER['port']}")
         self.server.wait_for_termination()
 
 

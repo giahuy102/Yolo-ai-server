@@ -10,4 +10,5 @@ class StreamUtils:
         if is_set_line:
             line_coords = [camera_stream_detail.offset_x_begin, camera_stream_detail.offset_y_begin, camera_stream_detail.offset_x_end, camera_stream_detail.offset_y_end]
             stream_info.set_line_coords(line_coords)
+
         return stream_info

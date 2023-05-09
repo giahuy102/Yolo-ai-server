@@ -1,4 +1,5 @@
 import threading
+import logging
 
 from ....pkg.config.config import config
 from ..rabbitmq.producer import Producer
@@ -41,7 +42,12 @@ class StreamDetector:
         stream_infos = list()
         stream_utils = StreamUtils()
         handler = CameraStreamHandler()
-        camera_streams = handler.get_all_camera_streams()
+        try:
+            camera_streams = handler.get_all_camera_streams()
+        except Exception as e:
+            logging.error(e)
+            camera_streams = list()
+
         for camera in camera_streams:
             stream_infos.append(stream_utils.parse_stream_info(camera))
 

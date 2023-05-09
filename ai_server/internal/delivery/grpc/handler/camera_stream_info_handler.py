@@ -1,5 +1,7 @@
 
 
+import logging
+
 from .....pkg.grpc import camera_stream_info_pb2_grpc
 from .....pkg.grpc import camera_stream_info_pb2 
 from .grpc_handler import GrpcHandler
@@ -23,36 +25,52 @@ class CameraStreamInfoHandler(camera_stream_info_pb2_grpc.CameraStreamInfoServic
 
 
     def CreateCameraStream(self, request, context):
-        stream_utils = StreamUtils()
-
-        stream_loader = StreamLoader.get_instance()
-        camera_stream_detail = request.camera_stream_detail
-        stream_info = stream_utils.parse_stream_info(camera_stream_detail)
-        stream_loader.add_stream(stream_info.camera_id, stream_info)
-
         response = camera_stream_info_pb2.CameraStreamResponse()
-        response._id = camera_stream_detail._id
-        return self.success(response)
+        try:
+            stream_utils = StreamUtils()
+
+            stream_loader = StreamLoader.get_instance()
+            camera_stream_detail = request.camera_stream_detail
+            stream_info = stream_utils.parse_stream_info(camera_stream_detail)
+            stream_loader.add_stream(stream_info.camera_id, stream_info)
+
+            response._id = camera_stream_detail._id
+            return self.success(response)
+        except Exception as e:
+            logging.error(e)
+            return self.failure(context, response, e)
 
     def UpdateCameraStreamById(self, request, context):
-        stream_utils = StreamUtils()
-
-        stream_loader = StreamLoader.get_instance()
-        old_camera_id = request._id
-        camera_stream_detail = request.camera_stream_detail
-        stream_info = stream_utils.parse_stream_info(camera_stream_detail)
-        stream_loader.update_stream(old_camera_id, stream_info)
-
         response = camera_stream_info_pb2.CameraStreamResponse()
-        response._id = camera_stream_detail._id
-        return self.success(response)
+
+        try:
+            stream_utils = StreamUtils()
+
+            stream_loader = StreamLoader.get_instance()
+            old_camera_id = request._id
+            camera_stream_detail = request.camera_stream_detail
+            stream_info = stream_utils.parse_stream_info(camera_stream_detail)
+            stream_loader.update_stream(old_camera_id, stream_info)
+
+            
+            response._id = camera_stream_detail._id
+            return self.success(response)
+        except Exception as e:
+            logging.error(e)
+            return self.failure(context, response, e)
+        
 
 
     def DeleteCameraStreamById(self, request, context):
-        stream_loader = StreamLoader.get_instance()
-        camera_id = request._id
-        stream_loader.remove_stream(camera_id)
-
         response = camera_stream_info_pb2.CameraStreamResponse()
-        response._id = request._id
-        return self.success(response)
+        try:
+            stream_loader = StreamLoader.get_instance()
+            camera_id = request._id
+            stream_loader.remove_stream(camera_id)
+
+            
+            response._id = request._id
+            return self.success(response)
+        except Exception as e:
+            logging.error(e)
+            return self.failure(context, response, e)

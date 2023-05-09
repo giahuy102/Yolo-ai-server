@@ -2,6 +2,7 @@ import time
 from datetime import datetime
 import pytz
 from pathlib import Path
+import logging
 
 import cv2
 import torch
@@ -177,6 +178,6 @@ class ObjectDetector:
 
 
                     # Print time (inference + NMS)
-                    print(f'{s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, ({(1E3 * (t3 - t2)):.1f}ms) NMS')
+                    logging.info(f'{"Stream#" + s + " " if s else s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, ({(1E3 * (t3 - t2)):.1f}ms) NMS')
 
-        print(f'Done. ({time.time() - t0:.3f}s)')
+        logging.info(f'Done. ({time.time() - t0:.3f}s)')
