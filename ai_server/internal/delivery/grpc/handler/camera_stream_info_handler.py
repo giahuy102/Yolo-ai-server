@@ -32,6 +32,10 @@ class CameraStreamInfoHandler(camera_stream_info_pb2_grpc.CameraStreamInfoServic
             stream_loader = StreamLoader.get_instance()
             camera_stream_detail = request.camera_stream_detail
             stream_info = stream_utils.parse_stream_info(camera_stream_detail)
+
+            if not stream_utils.valid_event_info(stream_info):
+                raise Exception("Invalid event information")
+
             stream_loader.add_stream(stream_info.camera_id, stream_info)
 
             response._id = camera_stream_detail._id

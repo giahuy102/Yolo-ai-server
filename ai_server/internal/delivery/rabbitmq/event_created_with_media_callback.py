@@ -27,6 +27,11 @@ class EventCreatedWithMediaCallback:
         line_coords = json_body["line_coords"] if json_body.get("line_coords") else None
         return VideoEventInput(event_id, event_key, video_url, start_time, end_time, target_time, detection_image_url, image_url, line_coords)
 
+    def valid_event_input(self, event_input):
+        if event_input.event_key == CAMERA_EVENT["line_crossing"]["key"]:
+            if not event_input.line_coords:
+                return False
+        return True
 
     def get_event_key_prefix(self, queue, is_ai_event):
         if is_ai_event:
@@ -55,6 +60,10 @@ class EventCreatedWithMediaCallback:
         # event_key = routing_key[-1]
         json_body = json.loads(body)
         event_input = self.parse_event_input(json_body)
+
+        if not self.valid_event_input(event_input):
+            return
+
         video_event_processor = VideoEventProcessor()
         video_event_processor.execute(event_input, self.callback_event_output(event_input.event_key))
 

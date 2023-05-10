@@ -109,8 +109,10 @@ class StreamLoader:  # multiple IP or RTSP cameras
     def remove_stream(self, stream_id):
         try:
             self.infos_lock.acquire()
-            del self.stream_infos[stream_id]
-            del self.frames[stream_id]
+
+            if stream_id in self.stream_infos:
+                del self.stream_infos[stream_id]
+                del self.frames[stream_id]
 
             self.just_updated_infos = True
         except Exception as e:
@@ -187,7 +189,8 @@ class StreamLoader:  # multiple IP or RTSP cameras
             time.sleep(1 / self.fps)  # wait time
         else:
             self.remove_stream(key)
-            logging.info(f"Remove stream {key} from detection because of closed stream")
+        cap.release()
+        logging.info(f"Remove stream {key} from detection because of closed stream")
 
     # def __iter__(self):
     #     self.count = -1

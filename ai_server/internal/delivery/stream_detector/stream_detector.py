@@ -49,6 +49,10 @@ class StreamDetector:
             camera_streams = list()
 
         for camera in camera_streams:
+            stream_info = stream_utils.parse_stream_info(camera)
+            if not stream_utils.valid_event_info(stream_info):
+                logging.info("Can not add camera taken from api server to stream loader due to invalid event information")
+                continue
             stream_infos.append(stream_utils.parse_stream_info(camera))
 
         stream_event_input = StreamEventInput(stream_infos)
