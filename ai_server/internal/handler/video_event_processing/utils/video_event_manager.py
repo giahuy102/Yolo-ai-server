@@ -2,6 +2,7 @@ from pathlib import Path
 import os
 import cv2
 from dateutil.parser import parse
+import logging
 
 from ...object_detection.yolov7.utils.detection_video import DetectionVideo
 from .....pkg.config.config import config
@@ -19,6 +20,8 @@ EVENT_CONFIG = config["event"]
 IOT_EVENT = EVENT_CONFIG["iot"]
 CAMERA_EVENT = EVENT_CONFIG["camera"]
 
+TEMP_FILE_STRING = "temporary-"
+
 
 class VideoEventManager:
 
@@ -32,10 +35,14 @@ class VideoEventManager:
         video_extension = Path(self.event_input.video_url).suffix
         self.general_image_file = PATH_CONFIG["general_image"] + '/' + RandomGenerator.gen_file_name() + ".jpg"
         self.detection_image_file = PATH_CONFIG["detection_image"] + '/' + RandomGenerator.gen_file_name() + ".jpg"
-        self.detection_video_file = PATH_CONFIG["detection_video"] + '/' + RandomGenerator.gen_file_name() + video_extension
+        
         self.general_image_path = ROOT_PATH + self.general_image_file
         self.detection_image_path = ROOT_PATH + self.detection_image_file
-        self.detection_video_path = ROOT_PATH + self.detection_video_file
+
+        self.detection_video_filename = RandomGenerator.gen_file_name()
+        self.detection_video_file = PATH_CONFIG["detection_video"] + '/' + self.detection_video_filename + video_extension
+        self.temp_detection_video_file = PATH_CONFIG["detection_video"] + '/' + TEMP_FILE_STRING + self.detection_video_filename + video_extension
+        self.detection_video_path = ROOT_PATH + self.temp_detection_video_file
         return self
 
     def process_directory(self):
@@ -85,6 +92,7 @@ class VideoEventManager:
     def process_event_output(self):
         self.host = f"{SERVER_CONFIG['scheme']}://{SERVER_CONFIG['host']}:{SERVER_CONFIG['port']}"
     
+        self.video_writer.release()
 
         if self.is_ai_event: 
             # pessimistic trategy
@@ -98,8 +106,23 @@ class VideoEventManager:
             self.image_url = f"{self.host}{self.general_image_file}"
             self.detection_image_url = f"{self.host}{self.detection_image_file}"
             self.detection_video_url = f"{self.host}{self.detection_video_file}"
+
+        self.convert_output_video_codec()
+
         return self
 
+    def remove_file(file_path):
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        else:
+            logging.warning(f"File having path {file_path} does not exist but trying to remove")
+
+    def convert_output_video_codec(self):
+        temp_path = self.detection_video_path
+        if self.detection_video_url != self.video_url:
+            self.detection_video_path = ROOT_PATH + self.detection_video_file
+            os.system(f"ffmpeg -loglevel warning -i {temp_path} -vcodec libx264 -f mp4 {self.detection_video_path}")
+        self.remove_file(temp_path)
 
     def get_event_output(self):
         print(VideoEventOutput(self.event_input.event_id, self.image_url, self.video_url, self.detection_image_url, self.detection_video_url, self.true_alarm, self.is_ai_event).to_json())

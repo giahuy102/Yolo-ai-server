@@ -4,7 +4,7 @@ services:
     container_name: ai_server
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.local
     volumes:
       - ./:/usr/app
     working_dir: /usr/app
