@@ -122,7 +122,7 @@ class VideoEventManager:
         if self.detection_video_url != self.video_url:
             self.detection_video_path = ROOT_PATH + self.detection_video_file
             os.system(f"ffmpeg -loglevel warning -i {temp_path} -vcodec libx264 -f mp4 {self.detection_video_path}")
-        self.remove_file(temp_path)
+        # self.remove_file(temp_path)
 
     def get_event_output(self):
         print(VideoEventOutput(self.event_input.event_id, self.image_url, self.video_url, self.detection_image_url, self.detection_video_url, self.true_alarm, self.is_ai_event).to_json())
