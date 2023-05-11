@@ -4,7 +4,7 @@ import time
 
 from utils.datasets import letterbox
 
-MAX_FRAME = 30
+MAX_FRAME = 300
 
 class DetectionVideo:
     def __init__(self, video_url, img_size=640, stride=32):
