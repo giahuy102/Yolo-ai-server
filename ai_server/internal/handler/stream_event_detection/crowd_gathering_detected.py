@@ -1,15 +1,16 @@
+from multiprocessing import Event
 from ....pkg.config.config import config
 from ..object_detection.yolov7.utils.labels import Labels
+from .event_detected import EventDetected
 
 EVENT_CONFIG = config["event"]
 CAMERA_EVENT_CONFIG = EVENT_CONFIG["camera"]
 CROWD_GATHERING_EVENT_CONFIG = CAMERA_EVENT_CONFIG["crowd_gathering"]
 
-class CrowdGatheringDetected:
+class CrowdGatheringDetected(EventDetected):
 
     def execute(self, manager, detection_results, callback):
-        frame_info = detection_results.frame_info
-        if not manager.allow_detection(frame_info.event_key, detection_results.cur_time):
+        if not self.preprocess_frame(manager, detection_results):
             return False
         count = 0
         for res in detection_results.results:

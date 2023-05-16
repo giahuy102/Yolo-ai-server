@@ -2,16 +2,16 @@ import numpy as np
 from numpy.linalg import norm
 from ....pkg.config.config import config
 from ..object_detection.yolov7.utils.labels import Labels
+from .event_detected import EventDetected
 
 EVENT_CONFIG = config["event"]
 CAMERA_EVENT_CONFIG = EVENT_CONFIG["camera"]
 LINE_CROSSING_EVENT_CONFIG = CAMERA_EVENT_CONFIG["line_crossing"]
 
-class LineCrossingDetected:
+class LineCrossingDetected(EventDetected):
 
     def execute(self, manager, detection_results, callback):
-        frame_info = detection_results.frame_info
-        if not manager.allow_detection(frame_info.event_key, detection_results.cur_time):
+        if not self.preprocess_frame(manager, detection_results):
             return False
         found = False
         info = detection_results.frame_info

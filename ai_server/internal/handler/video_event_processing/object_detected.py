@@ -174,15 +174,19 @@
 
 
 
+from multiprocessing import Event
 import cv2
 
 from ..object_detection.yolov7.utils.labels import Labels
+from .event_detected import EventDetected
 
-class ObjectDetected:
+class ObjectDetected(EventDetected):
     
     def execute(self, manager, detection_results):
         # video_cap = manager.detection_video.cap
         # timestamp_ms = video_cap.get(cv2.CAP_PROP_POS_MSEC)
+
+        self.preprocess_frame(manager, detection_results)
 
         for res in detection_results.results:
             if res.class_id == Labels.PERSON:

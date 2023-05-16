@@ -22,10 +22,14 @@ class EventCreatedWithMediaCallback:
         start_time = json_body["start_time"]
         end_time = json_body["end_time"]
         target_time = json_body["event_time"]
+
+        iot_event_zone_coords = json_body["iot_event_zone_coords"] if json_body.get("iot_event_zone_coords") else []
+        camera_event_zone_coords = json_body["camera_event_zone_coords"] if json_body.get("camera_event_zone_coords") else []
+
         image_url = json_body["normal_image_url"] if json_body.get("normal_image_url") else None
         detection_image_url = json_body["detection_image_url"] if json_body.get("detection_image_url") else None
         line_coords = json_body["line_coords"] if json_body.get("line_coords") else None
-        return VideoEventInput(event_id, event_key, video_url, start_time, end_time, target_time, detection_image_url, image_url, line_coords)
+        return VideoEventInput(event_id, event_key, video_url, start_time, end_time, target_time, iot_event_zone_coords, camera_event_zone_coords, detection_image_url, image_url, line_coords)
 
     def valid_event_input(self, event_input):
         if event_input.event_key == CAMERA_EVENT["line_crossing"]["key"]:

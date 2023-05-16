@@ -17,6 +17,9 @@ message CameraStreamDetail {
     float offset_y_end = 9;
     string username = 10;
     string password = 11;
+
+    repeated float iot_event_zone_coords = 12;
+    repeated float camera_event_zone_coords = 13;
 }
 
 
