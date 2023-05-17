@@ -59,7 +59,7 @@ class StreamLoader:  # multiple IP or RTSP cameras
 
 
         import time
-        time.sleep(2)
+        time.sleep(3)
 
         cap = cv2.VideoCapture(url)
 
