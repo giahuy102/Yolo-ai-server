@@ -99,6 +99,10 @@ class StreamLoader:  # multiple IP or RTSP cameras
                     stream_condition.notify_all()
 
         except Exception as e:
+            if stream_id in self.stream_infos:
+                del self.stream_infos[stream_id]
+            if stream_id in self.frames:
+                del self.frames[stream_id]
             raise e
         else:
             logging.info(f"Add new stream {stream_id} successfully for detection")

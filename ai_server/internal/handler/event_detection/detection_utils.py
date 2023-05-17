@@ -4,7 +4,8 @@ from ..object_detection.yolov7.utils.labels import Labels
 PERSON_THRESHOLD = 0.38
 IOT_EVENT_ZONE_LABEL = "Iot event zone"
 CAMERA_EVENT_ZONE_LABEL = "Camera event zone"
-ZONE_COLOR = [0, 0, 255] # in BGR format
+CAMERA_ZONE_COLOR = [0, 0, 255] # in BGR format
+IOT_ZONE_COLOR = [0, 170, 255]
 PERSON_COLOR = [255, 0, 0]
 
 class DetectionUtils:
@@ -23,19 +24,21 @@ class DetectionUtils:
     def preprocess_frame(self, detection_results, iot_event_zone_coords, camera_event_zone_coords, is_ai_event, line_crossing_coords=None):
         if is_ai_event:
             zone_coords = camera_event_zone_coords
-            zone_label = IOT_EVENT_ZONE_LABEL
+            zone_label = CAMERA_EVENT_ZONE_LABEL
+            zone_color = CAMERA_ZONE_COLOR
         else:
             zone_coords = iot_event_zone_coords
-            zone_label = CAMERA_EVENT_ZONE_LABEL
+            zone_label = IOT_EVENT_ZONE_LABEL
+            zone_color = IOT_ZONE_COLOR
 
         if zone_coords:
-            plot_one_box(zone_coords, detection_results.img_frame_with_box, label=zone_label, color=ZONE_COLOR, line_thickness=1)
+            plot_one_box(zone_coords, detection_results.img_frame_with_box, label=zone_label, color=zone_color, line_thickness=1)
 
         results = list()
         for result in detection_results.results:
             if self.satisfy_person_condition(result.class_id, result.confident) and self.in_event_zone(result.center_w_h, zone_coords):
                 label = f'{result.name} {result.confident:.2f}'
-                plot_one_box(result.xyxy, detection_results.img_frame_with_box, label=label, color=PERSON_COLOR, line_thickness=1.5)
+                plot_one_box(result.xyxy, detection_results.img_frame_with_box, label=label, color=PERSON_COLOR, line_thickness=2)
                 results.append(result)
 
         detection_results.results = results       
