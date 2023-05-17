@@ -56,6 +56,11 @@ class StreamLoader:  # multiple IP or RTSP cameras
         # Start the thread to read frames from the video stream
         # url = eval(info.rtsp_stream) if info.rtsp_stream.isnumeric() else info.rtsp_stream
         url = info.rtsp_url
+
+
+        import time
+        time.sleep(2)
+
         cap = cv2.VideoCapture(url)
 
         if not cap.isOpened():
