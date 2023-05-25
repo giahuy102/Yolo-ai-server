@@ -1,3 +1,5 @@
+from ...tracking.tracker import Tracker
+
 
 class RTSPStream:
     def __init__(self, camera_id, rtsp_url, event_key, iot_event_zone_coords, camera_event_zone_coords, stream_id=None): 
@@ -10,6 +12,10 @@ class RTSPStream:
 
         self.stream_id = stream_id if stream_id else self.camera_id
         self.line_coords = None # list of coordinate [x, y, x, y]
+
+
+        self.tracker = Tracker()
+
 
     def set_line_coords(self, line_coords):
         self.line_coords = line_coords

@@ -39,6 +39,22 @@ class ObjectDetector:
         return confident >= PERSON_THRESHOLD and label == Labels.PERSON
 
 
+    def xyxy_to_xywh(self, *xyxy):
+        """" Calculates the relative bounding box from absolute pixel values. """
+        bbox_left = min([xyxy[0].item(), xyxy[2].item()])
+        bbox_top = min([xyxy[1].item(), xyxy[3].item()])
+        bbox_w = abs(xyxy[0].item() - xyxy[2].item())
+        bbox_h = abs(xyxy[1].item() - xyxy[3].item())
+        x_c = (bbox_left + bbox_w / 2)
+        y_c = (bbox_top + bbox_h / 2)
+        w = bbox_w
+        h = bbox_h
+        return x_c, y_c, w, h
+
+
+
+
+
     def detect(self, detection_object, callback, opt=DetectionArgument()):  
 
         # print(str(opt.weight_dir / opt.weights))
@@ -159,7 +175,26 @@ class ObjectDetector:
                         detection_results = list()
                         img_frame = np.copy(im0)
                         cur_time = datetime.now(TIMEZONE).isoformat()
+
+
+                        xywh_bboxs = []
+                        confs = []
+
+
                         for *xyxy, conf, cls in reversed(det):
+
+                            print("$$$$$$$$$$$$$$$$$$$$$")
+                            print(conf)
+                            print(conf.item())
+
+                            # For tracking with deepsort
+                            x_c, y_c, bbox_w, bbox_h = self.xyxy_to_xywh(*xyxy)
+                            xywh_obj = [x_c, y_c, bbox_w, bbox_h]
+                            xywh_bboxs.append(xywh_obj)
+                            confs.append([conf.item()])
+
+
+                            
                             class_name = names[int(cls)]
                             xyxy = list(map(lambda x: float(x), xyxy))
                             center_w_h = xyxy2xywh(torch.tensor(xyxy).view(1, 4))[0].tolist()
@@ -176,9 +211,13 @@ class ObjectDetector:
                             
                             detection_results.append(DetectionResult(int(cls), class_name, xyxy, center_w_h, confident))
 
+                        # For tracking with deepsort
+                        xywhs = torch.Tensor(xywh_bboxs)
+                        confss = torch.Tensor(confs)
+
 
                         img_frame_with_box = im0
-                        callback(DetectionResults(detection_results, img_frame, img_frame_with_box, cur_time, finfo, vid_cap))
+                        callback(DetectionResults(detection_results, img_frame, img_frame_with_box, cur_time, finfo, vid_cap, xywhs, confss))
 
 
                     # Print time (inference + NMS)
