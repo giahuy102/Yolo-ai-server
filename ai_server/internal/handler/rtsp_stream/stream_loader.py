@@ -1,6 +1,7 @@
 import os
+import numpy as np
 import cv2
-from threading import Thread, Lock
+from threading import Thread, Lock, Condition
 import time
 import re
 import copy
@@ -16,6 +17,8 @@ class StreamLoader:  # multiple IP or RTSP cameras
     @staticmethod
     def get_instance(stream_infos=list()):
         with StreamLoader._singleton_lock:
+            if StreamLoader._instance and len(stream_infos) > 0:
+                StreamLoader._instance.init(stream_infos)
             if not StreamLoader._instance:
                 StreamLoader(stream_infos)
             return StreamLoader._instance
@@ -25,10 +28,19 @@ class StreamLoader:  # multiple IP or RTSP cameras
         if StreamLoader._instance != None:
             raise Exception("This class is a singleton! Please access from get_instance method")
         StreamLoader._instance = self
-        
 
+        self.access_detection_frame_condition = Condition()
 
         self.infos_lock = Lock()
+
+        self.init(stream_infos)
+
+
+
+
+    def init(self, stream_infos):
+
+
 
         n = len(stream_infos)
         self.stream_infos = dict()
@@ -51,6 +63,8 @@ class StreamLoader:  # multiple IP or RTSP cameras
             # self.rect = np.unique(s, axis=0).shape[0] == 1  # rect inference if all shapes equal
             # if not self.rect:
             #     print('WARNING: Different stream shapes detected. For optimal performance supply similarly-shaped streams.')
+
+
 
     def consume_new_stream(self, key, info):
         # Start the thread to read frames from the video stream
@@ -200,6 +214,30 @@ class StreamLoader:  # multiple IP or RTSP cameras
             self.remove_stream(key)
         cap.release()
         logging.info(f"Remove stream {key} from detection because of closed stream")
+
+
+
+
+
+
+
+
+    def get_stream_info_by_id(self, stream_id):
+        self.infos_lock.acquire()
+        stream_info = None
+        if stream_id in self.stream_infos:
+            stream_info = self.stream_infos[stream_id]
+        self.infos_lock.release()
+        return stream_info
+
+    
+    def get_cur_detection_frame_by_stream_id(self, stream_id):
+        stream_info = self.get_stream_info_by_id(stream_id)
+        if not stream_info:
+            return np.random.randint(255, size=(640, 640, 3), dtype=np.uint8)
+        return stream_info.get_cur_detection_frame()
+
+
 
     # def __iter__(self):
     #     self.count = -1

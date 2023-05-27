@@ -21,7 +21,8 @@ class DetectionStream:
         if not self.rect:
             print('WARNING: Different stream shapes detected. For optimal performance supply similarly-shaped streams.')
 
-
+    def get_access_detection_frame_condition(self):
+        return self.stream_loader.access_detection_frame_condition
 
     def __iter__(self):
         self.count = -1 # Temporarily not have any usage here

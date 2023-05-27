@@ -1,3 +1,6 @@
+import numpy as np
+
+
 from ...tracking.tracker import Tracker
 
 
@@ -16,7 +19,16 @@ class RTSPStream:
 
         self.tracker = Tracker()
 
+        
+        self.cur_detection_frame = np.random.randint(255, size=(640, 640, 3), dtype=np.uint8)
+
 
     def set_line_coords(self, line_coords):
         self.line_coords = line_coords
+
+    def get_cur_detection_frame(self):
+        return self.cur_detection_frame
+
+    def set_cur_detection_frame(self, cur_detection_frame):
+        self.cur_detection_frame = cur_detection_frame
     

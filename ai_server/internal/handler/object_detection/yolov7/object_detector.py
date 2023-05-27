@@ -165,33 +165,30 @@ class ObjectDetector:
 
                     p = Path(p)  # to Path
                     
+                    # Write results
+                    detection_results = list()
+                    img_frame = np.copy(im0)
+                    cur_time = datetime.now(TIMEZONE).isoformat()
+
+
+                    xywhs = []
+                    confss = []
+
                     if len(det):
                         # Rescale boxes from img_size to im0 size
                         det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
 
 
 
-                        # Write results
-                        detection_results = list()
-                        img_frame = np.copy(im0)
-                        cur_time = datetime.now(TIMEZONE).isoformat()
-
-
-                        xywh_bboxs = []
-                        confs = []
 
 
                         for *xyxy, conf, cls in reversed(det):
 
-                            print("$$$$$$$$$$$$$$$$$$$$$")
-                            print(conf)
-                            print(conf.item())
-
                             # For tracking with deepsort
                             x_c, y_c, bbox_w, bbox_h = self.xyxy_to_xywh(*xyxy)
                             xywh_obj = [x_c, y_c, bbox_w, bbox_h]
-                            xywh_bboxs.append(xywh_obj)
-                            confs.append([conf.item()])
+                            xywhs.append(xywh_obj)
+                            confss.append([conf.item()])
 
 
                             
@@ -211,16 +208,27 @@ class ObjectDetector:
                             
                             detection_results.append(DetectionResult(int(cls), class_name, xyxy, center_w_h, confident))
 
-                        # For tracking with deepsort
-                        xywhs = torch.Tensor(xywh_bboxs)
-                        confss = torch.Tensor(confs)
+                        # # For tracking with deepsort
+                        # xywhs = torch.Tensor(xywhs)
+                        # confss = torch.Tensor(confss)
 
 
-                        img_frame_with_box = im0
-                        callback(DetectionResults(detection_results, img_frame, img_frame_with_box, cur_time, finfo, vid_cap, xywhs, confss))
-
+                    img_frame_with_box = im0
+                    callback(DetectionResults(detection_results, img_frame, img_frame_with_box, cur_time, finfo, vid_cap, xywhs, confss))
 
                     # Print time (inference + NMS)
                     logging.info(f'{"Stream#" + s + " " if s else s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, ({(1E3 * (t3 - t2)):.1f}ms) NMS')
+
+
+                # is stream detection
+                if not vid_cap:
+                    access_frame_lock = detection_object.get_access_detection_frame_condition()
+                    try:
+                        with access_frame_lock:
+                            access_frame_lock.notify_all()
+                    except Exception as e:
+                        logging.warn(str(e))
+
+
 
         logging.info(f'Done. ({time.time() - t0:.3f}s)')
