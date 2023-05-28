@@ -211,8 +211,6 @@ class ObjectDetector:
                         # # For tracking with deepsort
                         # xywhs = torch.Tensor(xywhs)
                         # confss = torch.Tensor(confss)
-
-
                     img_frame_with_box = im0
                     callback(DetectionResults(detection_results, img_frame, img_frame_with_box, cur_time, finfo, vid_cap, xywhs, confss))
 
