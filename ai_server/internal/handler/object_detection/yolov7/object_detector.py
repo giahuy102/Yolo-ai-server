@@ -171,8 +171,8 @@ class ObjectDetector:
                     cur_time = datetime.now(TIMEZONE).isoformat()
 
 
-                    xywhs = []
-                    confss = []
+                    # xywhs = []
+                    # confss = []
 
                     if len(det):
                         # Rescale boxes from img_size to im0 size
@@ -187,15 +187,15 @@ class ObjectDetector:
                             # For tracking with deepsort
                             x_c, y_c, bbox_w, bbox_h = self.xyxy_to_xywh(*xyxy)
                             xywh_obj = [x_c, y_c, bbox_w, bbox_h]
-                            xywhs.append(xywh_obj)
-                            confss.append([conf.item()])
+                            # xywhs.append(xywh_obj)
+                            # confss.append([conf.item()])
 
 
                             
                             class_name = names[int(cls)]
                             xyxy = list(map(lambda x: float(x), xyxy))
                             center_w_h = xyxy2xywh(torch.tensor(xyxy).view(1, 4))[0].tolist()
-                            confident = conf
+                            confident = conf.item()
 
                             # if self.satisfy_person_condition(int(cls), confident):
 
@@ -206,13 +206,13 @@ class ObjectDetector:
                             #     detection_results.append(DetectionResult(int(cls), class_name, xyxy, center_w_h, confident))
 
                             
-                            detection_results.append(DetectionResult(int(cls), class_name, xyxy, center_w_h, confident))
+                            detection_results.append(DetectionResult(int(cls), class_name, xyxy, center_w_h, confident, xywh_obj))
 
                         # # For tracking with deepsort
                         # xywhs = torch.Tensor(xywhs)
                         # confss = torch.Tensor(confss)
                     img_frame_with_box = im0
-                    callback(DetectionResults(detection_results, img_frame, img_frame_with_box, cur_time, finfo, vid_cap, xywhs, confss))
+                    callback(DetectionResults(detection_results, img_frame, img_frame_with_box, cur_time, finfo, vid_cap, names))
 
                     # Print time (inference + NMS)
                     logging.info(f'{"Stream#" + s + " " if s else s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, ({(1E3 * (t3 - t2)):.1f}ms) NMS')

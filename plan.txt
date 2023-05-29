@@ -54,3 +54,8 @@ stream_detector nên cho start 1 thread hoặc process khác (nên là process d
 Thêm threading.Condition khi update stream info để tránh cpu busy waiting
 Chặn threshold là người khi ? 0.5
 Xóa bỏ các bounding box khác không phải là người trong ảnh
+
+
+Xóa general video
+retry consumer pika rabbitmq
+sort for live stream

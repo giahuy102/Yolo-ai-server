@@ -23,18 +23,16 @@ class StreamEventManager:
     def __init__(self):
         self.camera_event_distance_with_same_type = dict()
     
-    def allow_detection(self, event_key, cur_time):
-        if event_key not in self.camera_event_distance_with_same_type:
-            self.camera_event_distance_with_same_type[event_key] = cur_time
+    def allow_detection(self, event_key, stream_id, cur_time):
+        if (event_key, stream_id) not in self.camera_event_distance_with_same_type:
+            self.camera_event_distance_with_same_type[(event_key, stream_id)] = cur_time
             return True
         else:
-            dis = (datetime.fromisoformat(cur_time) - datetime.fromisoformat(self.camera_event_distance_with_same_type[event_key])).total_seconds()
+            dis = (datetime.fromisoformat(cur_time) - datetime.fromisoformat(self.camera_event_distance_with_same_type[(event_key, stream_id)])).total_seconds()
             
-            if dis >= SAME_TYPE_SPAM_THRESHOLD:
-                self.camera_event_distance_with_same_type[event_key] = cur_time
-                return True
-            else:
+            if dis < SAME_TYPE_SPAM_THRESHOLD:
                 return False
+            return True
 
 
     def process_stream_loader(self, event_input):
@@ -86,10 +84,13 @@ class StreamEventManager:
 
     def process_event_output(self, detection_results, callback):
         frame_info = detection_results.frame_info
+        self.camera_event_distance_with_same_type[(frame_info.event_key, frame_info.stream_id)] = detection_results.cur_time
+
+        frame_info = detection_results.frame_info
         general_image_file, detection_image_file = self.gen_image_files()
         general_image_path, detection_image_path = self.gen_image_paths(general_image_file, detection_image_file)
         general_image_url, detection_image_url = self.gen_image_urls(general_image_file, detection_image_file)
         self.save_images(general_image_path, detection_image_path, detection_results.img_frame, detection_results.img_frame_with_box)
         event_output = StreamEventOutput(frame_info.camera_id, frame_info.event_key, detection_results.cur_time, general_image_url, detection_image_url, frame_info.line_coords)
 
-        callback(event_output)
+        # callback(event_output)

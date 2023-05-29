@@ -12,6 +12,12 @@ def main():
 
     set_logger()
 
+
+
+
+
+
+
     consumers = Consumers()
     consumers.start()
 

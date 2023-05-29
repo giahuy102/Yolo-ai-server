@@ -75,6 +75,7 @@ same_event_type_spam_prevention_threshold = 20
 general_image = "/static/general/image"
 detection_image = "/static/detection/image"
 detection_video = "/static/detection/video"
+general_video = "/static/general/video"
 
 
 

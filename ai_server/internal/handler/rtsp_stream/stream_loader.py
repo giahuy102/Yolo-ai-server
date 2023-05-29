@@ -173,8 +173,11 @@ class StreamLoader:  # multiple IP or RTSP cameras
         """
         self.infos_lock.acquire()
 
-        stream_infos = copy.deepcopy(list(self.stream_infos.values()))
-        frames = copy.deepcopy(list(self.frames.values()))
+        # stream_infos = copy.deepcopy(list(self.stream_infos.values()))
+        # frames = copy.deepcopy(list(self.frames.values()))
+
+        stream_infos = list(self.stream_infos.values())
+        frames = list(self.frames.values())
 
         just_update_infos = self.just_updated_infos
         self.just_updated_infos = False

@@ -1,4 +1,5 @@
 from ...tracking.tracker import Tracker
+from ...sort_tracking.tracker import SortTracker
 
 class VideoEventInput:
     def __init__(self, event_id, event_key, video_url, start_time, end_time, target_time, iot_event_zone_coords, camera_event_zone_coords, detection_image_url=None, image_url=None, line_coords=None):
@@ -17,4 +18,4 @@ class VideoEventInput:
         self.line_coords = line_coords
 
 
-        self.tracker = Tracker()
+        self.tracker = SortTracker()

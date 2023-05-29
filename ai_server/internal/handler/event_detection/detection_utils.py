@@ -111,7 +111,7 @@ class DetectionUtils:
         #     label = f'{result.name} {result.confident:.2f}'
         #     plot_one_box(result.xyxy, detection_results.img_frame_with_box, label=label, color=PERSON_COLOR, line_thickness=2)
 
-        tracker = detection_results.frame_info.tracker
+        # tracker = detection_results.frame_info.tracker
         print("Tracker outputs: ", tracker.get_outputs())
         if len(tracker.get_outputs()) > 0:
             identities = tracker.get_identities()

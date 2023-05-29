@@ -3,6 +3,7 @@ import os
 import cv2
 from dateutil.parser import parse
 import logging
+import requests
 
 from ...object_detection.yolov7.utils.detection_video import DetectionVideo
 from .....pkg.config.config import config
@@ -31,8 +32,8 @@ class VideoEventManager:
         self.detection_video = DetectionVideo(video_url)
         return self
 
-    def process_path(self):
-        video_extension = Path(self.event_input.video_url).suffix
+    def process_path(self, event_input):
+        video_extension = '.mp4'
         self.general_image_file = PATH_CONFIG["general_image"] + '/' + RandomGenerator.gen_file_name() + ".jpg"
         self.detection_image_file = PATH_CONFIG["detection_image"] + '/' + RandomGenerator.gen_file_name() + ".jpg"
         
@@ -43,12 +44,17 @@ class VideoEventManager:
         self.detection_video_file = PATH_CONFIG["detection_video"] + '/' + self.detection_video_filename + video_extension
         self.temp_detection_video_file = PATH_CONFIG["detection_video"] + '/' + TEMP_FILE_STRING + self.detection_video_filename + video_extension
         self.detection_video_path = ROOT_PATH + self.temp_detection_video_file
+
+        self.general_video_filename = RandomGenerator.gen_file_name()
+        self.general_video_file = PATH_CONFIG["general_video"] + '/' + self.general_video_filename + video_extension
+        self.general_video_path = ROOT_PATH + self.general_video_file
         return self
 
     def process_directory(self):
         os.makedirs(ROOT_PATH + PATH_CONFIG["general_image"], exist_ok=True)
         os.makedirs(ROOT_PATH + PATH_CONFIG["detection_image"], exist_ok=True)
         os.makedirs(ROOT_PATH + PATH_CONFIG["detection_video"], exist_ok=True)
+        os.makedirs(ROOT_PATH + PATH_CONFIG["general_video"], exist_ok=True)
         return self
 
     def process_video_writer(self):
@@ -58,6 +64,15 @@ class VideoEventManager:
         h = int(video_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self.video_writer = cv2.VideoWriter(self.detection_video_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
         return self
+
+    def process_download_general_video_file(self):
+        print("Downloading video from google drive")
+        r = requests.get(self.event_input.video_url, timeout=10)
+        with open(self.general_video_path, 'wb') as f:
+            f.write(r.content)
+        print("Finish downloading video from google drive")
+        return self
+
 
     def check_is_ai_event(self, event_key):
         event_with_equal_key = list(filter(lambda e: type(e) is dict and e["key"] == event_key, CAMERA_EVENT.values()))
@@ -123,6 +138,12 @@ class VideoEventManager:
         self.detection_video_path = ROOT_PATH + self.detection_video_file
         os.system(f"ffmpeg -loglevel warning -i {temp_path} -vcodec libx264 -f mp4 {self.detection_video_path}")
         self.remove_file(temp_path)
+
+    def process_clear_file(self):
+        print("Clear file: ", self.general_video_path)
+        self.remove_file(self.general_video_path)
+        print("After clear file: ", self.general_video_path)
+        return self
 
     def get_event_output(self):
         print(VideoEventOutput(self.event_input.event_id, self.image_url, self.video_url, self.detection_image_url, self.detection_video_url, self.true_alarm, self.is_ai_event).to_json())

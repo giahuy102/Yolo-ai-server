@@ -1,4 +1,4 @@
-
+import logging
 from .utils.video_event_manager import VideoEventManager
 from ..object_detection.yolov7.object_detector import ObjectDetector
 from .object_detected import ObjectDetected
@@ -14,15 +14,17 @@ class VideoEventProcessor:
 
 
     def preprocess_video_event(self, event_input):
-        self.manager.process_video(event_input) \
-                    .process_path() \
+        self.manager.process_path(event_input) \
+                    .process_video(event_input) \
                     .process_directory() \
+                    .process_download_general_video_file() \
                     .process_video_writer() \
                     .process_initial_event_data(event_input) \
                     .process_initial_detection_data()
 
     def postprocess_video_event(self):
         self.manager.process_save_images() \
+                    .process_clear_file() \
                     .process_event_output()
 
 
@@ -42,11 +44,17 @@ class VideoEventProcessor:
         callback(self.manager, detection_results)
 
     def execute(self, video_event_input, callback):
-        self.manager = VideoEventManager()
-        self.preprocess_video_event(video_event_input)
-        self.choose_event_callback()
-        detector = ObjectDetector()
-        detector.detect(self.manager.detection_video, self.execute_event_frame)
-        self.postprocess_video_event()        
-        event_output = self.manager.get_event_output()
-        callback(event_output)
+        
+        try:
+            self.manager = VideoEventManager()
+            self.preprocess_video_event(video_event_input)
+            self.choose_event_callback()
+            detector = ObjectDetector()
+            print("-------------Start to detect video-------------")
+            detector.detect(self.manager.detection_video, self.execute_event_frame)
+            self.postprocess_video_event()        
+            event_output = self.manager.get_event_output()
+            callback(event_output)
+        except Exception as e:
+            logging.error(e)
+

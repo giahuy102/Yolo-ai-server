@@ -2,7 +2,7 @@ import numpy as np
 
 
 from ...tracking.tracker import Tracker
-
+from ...sort_tracking.tracker import SortTracker
 
 class RTSPStream:
     def __init__(self, camera_id, rtsp_url, event_key, iot_event_zone_coords, camera_event_zone_coords, stream_id=None): 
@@ -17,8 +17,9 @@ class RTSPStream:
         self.line_coords = None # list of coordinate [x, y, x, y]
 
 
-        self.tracker = Tracker()
+        # self.tracker = Tracker()
 
+        self.tracker = SortTracker()
         
         self.cur_detection_frame = np.random.randint(255, size=(640, 640, 3), dtype=np.uint8)
 
