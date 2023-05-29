@@ -8,10 +8,10 @@ def set_logger():
     logger = getLogger()
     logger.setLevel(getLevelName('INFO'))
 
-    log_path = Path(__file__).parents[2] / 'logs' / 'server.log'
-    file_handler = FileHandler(log_path)
-    file_handler.setFormatter(log_formatter)
-    logger.addHandler(file_handler)
+    # log_path = Path(__file__).parents[2] / 'logs' / 'server.log'
+    # file_handler = FileHandler(log_path)
+    # file_handler.setFormatter(log_formatter)
+    # logger.addHandler(file_handler)
 
     console_handler = StreamHandler()
     console_handler.setFormatter(log_formatter)

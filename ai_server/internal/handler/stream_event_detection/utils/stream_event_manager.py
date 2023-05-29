@@ -93,4 +93,4 @@ class StreamEventManager:
         self.save_images(general_image_path, detection_image_path, detection_results.img_frame, detection_results.img_frame_with_box)
         event_output = StreamEventOutput(frame_info.camera_id, frame_info.event_key, detection_results.cur_time, general_image_url, detection_image_url, frame_info.line_coords)
 
-        # callback(event_output)
+        callback(event_output)
