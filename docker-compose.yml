@@ -7,6 +7,8 @@ services:
       dockerfile: Dockerfile.local
     volumes:
       - ./:/usr/app
+    environment:
+      - CONFIG_PATH=/usr/app/ai_server/config/server.toml
     working_dir: /usr/app
     # Running in unbuffered mode => using for debugging when using with docker
     command: >
