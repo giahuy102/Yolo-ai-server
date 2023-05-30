@@ -25,7 +25,7 @@ class StreamEventManager:
     
     def allow_detection(self, event_key, stream_id, cur_time):
         if (event_key, stream_id) not in self.camera_event_distance_with_same_type:
-            self.camera_event_distance_with_same_type[(event_key, stream_id)] = cur_time
+            # self.camera_event_distance_with_same_type[(event_key, stream_id)] = cur_time
             return True
         else:
             dis = (datetime.fromisoformat(cur_time) - datetime.fromisoformat(self.camera_event_distance_with_same_type[(event_key, stream_id)])).total_seconds()
