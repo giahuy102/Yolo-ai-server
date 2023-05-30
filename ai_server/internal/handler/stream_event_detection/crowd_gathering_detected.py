@@ -18,3 +18,4 @@ class CrowdGatheringDetected(EventDetected):
                 count += 1
         if count >= CROWD_GATHERING_EVENT_CONFIG["crowd_threshold"]:
             manager.process_event_output(detection_results, callback)
+        # manager.process_event_output(detection_results, callback)

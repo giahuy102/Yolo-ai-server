@@ -46,6 +46,7 @@ class VideoEventProcessor:
     def execute(self, video_event_input, callback):
         
         try:
+            print("Start to execute video event processor")
             self.manager = VideoEventManager()
             self.preprocess_video_event(video_event_input)
             self.choose_event_callback()

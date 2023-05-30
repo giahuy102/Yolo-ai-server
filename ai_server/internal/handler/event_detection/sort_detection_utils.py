@@ -1,6 +1,7 @@
-from textwrap import indent
+import threading
 import torch
 import cv2
+import math
 
 from ..object_detection.yolov7.utils.plots import plot_one_box
 from ..object_detection.yolov7.utils.labels import Labels
@@ -91,9 +92,18 @@ class DetectionUtils:
     def equal_xyxy(self, result_xyxy, track_xyxy):
         [x, y, z, t] = result_xyxy
         [a, b, c, d] = track_xyxy
-        threshold = 7
-        if abs(x - a) > threshold or abs(y - b) > threshold or abs(z - c) > threshold or abs(t - d) > threshold:
+
+        cx = x + abs(z - x) / 2
+        cy = y + abs(t - y) / 2
+        ca = a + abs(c - a) / 2
+        cb = b + abs(d - b) / 2
+        threshold = max(abs(z - x), abs(t - y)) / 2
+        dis = math.sqrt((cx - ca) ** 2 + (cb - cy) ** 2)
+        if dis > threshold:
             return False
+
+        # if abs(x - a) > threshold or abs(y - b) > threshold or abs(z - c) > threshold or abs(t - d) > threshold:
+        #     return False
         return True
 
     def concatenate_unconfirmed_tracking_object(self, detection_results, xyxy_boxes, identities, categories):

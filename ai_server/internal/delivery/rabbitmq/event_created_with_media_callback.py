@@ -1,4 +1,7 @@
 import json
+import logging
+import threading
+import functools
 
 from ....pkg.config.config import config
 from ..rabbitmq.producer import Producer
@@ -43,21 +46,20 @@ class EventCreatedWithMediaCallback:
         else:
             return queue["routing_key_prefix"]["event_verified_iot"]
 
-    def callback_event_output(self, event_key):
+    def callback_event_output(self, event_key, event_output):
+        json_event_output = event_output.to_json()
+        exchange = EXCHANGES["event_processing"]
+        queue = exchange["queues"]["event_verified"]
+        event_key_prefix = self.get_event_key_prefix(queue, event_output.is_ai_event)
+        routing_key = f"{event_key_prefix}.{event_key}"
+        arg_exchange = Exchange(exchange["name"])
+        arg_queue = Queue(queue["name"], queue["binding_keys"])
 
-        def inner(event_output):
-            json_event_output = event_output.to_json()
-            exchange = EXCHANGES["event_processing"]
-            queue = exchange["queues"]["event_verified"]
-            event_key_prefix = self.get_event_key_prefix(queue, event_output.is_ai_event)
-            routing_key = f"{event_key_prefix}.{event_key}"
-            arg_exchange = Exchange(exchange["name"])
-            arg_queue = Queue(queue["name"], queue["binding_keys"])
+        producer = Producer(arg_exchange, arg_queue)
+        producer.produce_message(routing_key, json_event_output)
 
-            producer = Producer(arg_exchange, arg_queue)
-            producer.produce_message(routing_key, json_event_output)
+
         
-        return inner
 
     def execute(self, channel, method, properties, body):
         # routing_key = method.routing_key.split('.')
@@ -69,6 +71,8 @@ class EventCreatedWithMediaCallback:
             return
 
         video_event_processor = VideoEventProcessor()
-        video_event_processor.execute(event_input, self.callback_event_output(event_input.event_key))
-
+        logging.info("Handle detection video in new thread")
+        thread = threading.Thread(target=video_event_processor.execute, args=(event_input, functools.partial(self.callback_event_output, event_input.event_key)))
+        thread.start()
+        # video_event_processor.execute(event_input, self.callback_event_output(event_input.event_key))
 

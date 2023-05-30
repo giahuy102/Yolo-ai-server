@@ -67,7 +67,7 @@ class VideoEventManager:
 
     def process_download_general_video_file(self):
         print("Downloading video from google drive")
-        r = requests.get(self.event_input.video_url, timeout=10)
+        r = requests.get(self.event_input.video_url, timeout=2000)
         with open(self.general_video_path, 'wb') as f:
             f.write(r.content)
         print("Finish downloading video from google drive")
