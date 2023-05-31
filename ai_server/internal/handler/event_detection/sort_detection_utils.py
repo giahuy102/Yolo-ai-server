@@ -52,8 +52,14 @@ def draw_boxes(img, bbox, identities=None, categories=None, names=None, offset=(
 
 
 
-
-
+def draw_trails(img, trajectories):
+    for key in trajectories:
+        trajectory = trajectories[key]
+        for i in range(1, len(trajectory)):
+            color = compute_color_for_labels(key)
+            cur = trajectory[i]
+            prev = trajectory[i - 1]
+            cv2.line(img, (int(prev[0]), int(prev[1])), (int(cur[0]), int(cur[1])), color, thickness=2)
 
 
 class DetectionUtils:
@@ -141,3 +147,7 @@ class DetectionUtils:
         categories = tracker.get_categories()
         xyxy_boxes, identities, categories = self.concatenate_unconfirmed_tracking_object(detection_results, xyxy_boxes, identities, categories)
         draw_boxes(detection_results.img_frame_with_box, xyxy_boxes, identities, categories, detection_results.names)
+
+        cur_trajectories = tracker.get_current_frame_trajectories()
+        print("Trajectories: ", cur_trajectories)
+        draw_trails(detection_results.img_frame_with_box, cur_trajectories)

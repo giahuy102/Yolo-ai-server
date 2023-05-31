@@ -25,6 +25,8 @@ class Tracker:
                             max_age=cfg_deep.DEEPSORT.MAX_AGE, n_init=cfg_deep.DEEPSORT.N_INIT, nn_budget=cfg_deep.DEEPSORT.NN_BUDGET,
                             use_cuda=USE_CUDA)
 
+        self.trajectories = dict()
+
     # def update(self, xywhs, confss, obj_names, img_frame):
     #     if len(xywhs) > 0:
     #         print("Tracker xywhs: ", xywhs)
@@ -56,6 +58,34 @@ class Tracker:
             self.outputs = self.deepsort.update(xywhs, confss, class_ids, detection_results.img_frame)
         else:
             self.outputs = []
+
+        self.filter_trajectories()
+
+    def filter_trajectories(self):
+        tracks = self.deepsort.tracker.tracks
+        exist_ids = set()
+        for track in tracks:
+            box = track.to_tlwh()
+            x1, y1, x2, y2 = self.deepsort._tlwh_to_xyxy(box)
+            cx = (x1 + x2) / 2
+            cy = (y1 + y2) / 2
+            if track.track_id not in self.trajectories:
+                self.trajectories[track.track_id] = [(cx, cy)]
+            else:
+                self.trajectories[track.track_id].append((cx, cy))
+            exist_ids.add(track.track_id)
+        delete_keys = [k for k in self.trajectories.keys() if k not in exist_ids]
+        for k in delete_keys:
+            del self.trajectories[k]
+
+    def get_current_frame_trajectories(self):
+        active_ids = self.get_identities()
+        res = dict()
+        for k in self.trajectories:
+            if k in active_ids:
+                res[k] = self.trajectories[k]
+        return res            
+
 
     def get_xyxy_boxes(self):
         return self.outputs[:, :4] if len(self.outputs) > 0 else []

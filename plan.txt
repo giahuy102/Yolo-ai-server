@@ -59,3 +59,16 @@ Xóa bỏ các bounding box khác không phải là người trong ảnh
 Xóa general video
 retry consumer pika rabbitmq
 sort for live stream
+
+
+
+
+[x1, y1] = [1, 0] # làm gốc
+[x2, y2] = [-1, -1]
+ 
+dot = x1*x2 + y1*y2      # dot product
+det = x1*y2 - y1*x2      # determinant
+angle = math.atan2(det, dot)  # atan2(y, x) or atan2(sin, cos)
+
+degree = angle*(180/3.14)
+print(degree)
