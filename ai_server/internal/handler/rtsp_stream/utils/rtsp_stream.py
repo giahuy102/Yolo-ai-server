@@ -15,7 +15,7 @@ class RTSPStream:
 
         self.stream_id = stream_id if stream_id else self.camera_id
         self.line_coords = None # list of coordinate [x, y, x, y]
-
+        self.line_crossing_vector = None # list of coordinate [x, y, x, y]
 
         # self.tracker = Tracker()
 
@@ -26,6 +26,9 @@ class RTSPStream:
 
     def set_line_coords(self, line_coords):
         self.line_coords = line_coords
+
+    def set_line_crosssing_vector(self, line_crossing_vector):
+        self.line_crossing_vector = line_crossing_vector
 
     def get_cur_detection_frame(self):
         return self.cur_detection_frame

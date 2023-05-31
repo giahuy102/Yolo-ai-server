@@ -174,7 +174,6 @@
 
 
 
-from multiprocessing import Event
 import cv2
 
 from ..object_detection.yolov7.utils.labels import Labels

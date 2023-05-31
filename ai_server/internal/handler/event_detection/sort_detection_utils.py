@@ -132,7 +132,7 @@ class DetectionUtils:
         return xyxy_boxes, identities, categories
 
 
-    def preprocess_frame(self, detection_results, iot_event_zone_coords, camera_event_zone_coords, is_ai_event, tracker, line_crossing_coords=None):
+    def preprocess_frame(self, detection_results, iot_event_zone_coords, camera_event_zone_coords, is_ai_event, tracker):
         tracker.update(detection_results)
         zone_coords = self.get_zone_coords(iot_event_zone_coords, camera_event_zone_coords, is_ai_event)
         zone_label = self.get_zone_label(is_ai_event)

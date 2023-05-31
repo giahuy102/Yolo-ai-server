@@ -21,6 +21,8 @@ class StreamUtils:
             line_coords = [camera_stream_detail.offset_x_begin, camera_stream_detail.offset_y_begin, camera_stream_detail.offset_x_end, camera_stream_detail.offset_y_end]
             stream_info.set_line_coords(line_coords)
 
+            if hasattr(camera_stream_detail, 'line_crossing_vector'):
+                stream_info.set_line_crosssing_vector(camera_stream_detail.line_crossing_vector)
         return stream_info
 
     def valid_event_info(self, stream_info):
