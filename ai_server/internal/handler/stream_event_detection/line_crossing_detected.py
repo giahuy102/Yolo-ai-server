@@ -41,6 +41,14 @@ class LineCrossingDetected(EventDetected):
 
         line_crossing_utils = LineCrossingUtils()
         tracker = frame_info.tracker
-        if line_crossing_utils.exist_line_crossing_in_trajectories(tracker.get_current_frame_trajectories(), frame_info.line_coords, frame_info.line_crossing_vector):
-            manager.process_event_output(detection_results, callback)
+
+        crossing_condition = False
+        if LINE_CROSSING_EVENT_CONFIG["is_optimistic"]:
+            crossing_condition = line_crossing_utils.exist_line_crossing_in_trajectories(tracker.get_current_frame_trajectories(), frame_info.line_coords, frame_info.line_crossing_vector)
+        else:
+            crossing_condition = line_crossing_utils.exist_object_near_line(detection_results, frame_info.line_coords)
+        # if crossing_condition:
+        #     manager.process_event_output(detection_results, callback)
+
+        manager.process_event_output(detection_results, callback)
         

@@ -9,6 +9,7 @@ from ...object_detection.yolov7.utils.detection_video import DetectionVideo
 from .....pkg.config.config import config
 from ....utils.random_generator import RandomGenerator
 from .video_event_output import VideoEventOutput
+from ...google_drive.google_drive_uploader import GoogleDriveUploader
 
 
 ROOT_INDEX = 4
@@ -21,6 +22,8 @@ EVENT_CONFIG = config["event"]
 IOT_EVENT = EVENT_CONFIG["iot"]
 CAMERA_EVENT = EVENT_CONFIG["camera"]
 
+DETECTION_CONFIG = config["detection"]
+
 TEMP_FILE_STRING = "temporary-"
 
 
@@ -29,7 +32,7 @@ class VideoEventManager:
     def process_video(self, event_input):
         self.event_input = event_input
         video_url = event_input.video_url
-        self.detection_video = DetectionVideo(video_url)
+        self.detection_video = DetectionVideo(video_url, DETECTION_CONFIG["max_frame"])
         return self
 
     def process_path(self, event_input):
@@ -104,27 +107,32 @@ class VideoEventManager:
         cv2.imwrite(self.detection_image_path, self.img_frame_with_box)
         return self
 
-    def process_event_output(self):
-        self.host = f"{SERVER_CONFIG['scheme']}://{SERVER_CONFIG['host']}:{SERVER_CONFIG['port']}"
-    
+    def process_end_video(self):
         self.video_writer.release()
-
-        if self.is_ai_event: 
-            # pessimistic trategy
-            # detection_image_url and detection_video_url have been assigned in the initial method
-            if self.true_alarm:
-                self.image_url = f"{self.host}{self.general_image_file}"
-                self.detection_image_url = f"{self.host}{self.detection_image_file}"
-            self.detection_video_url = f"{self.host}{self.detection_video_file}"                
-            self.true_alarm = True
-        else:
-            self.image_url = f"{self.host}{self.general_image_file}"
-            self.detection_image_url = f"{self.host}{self.detection_image_file}"
-            self.detection_video_url = f"{self.host}{self.detection_video_file}"
-
         self.convert_output_video_codec()
-
         return self
+
+    # def process_event_output(self):
+    #     self.host = f"{SERVER_CONFIG['scheme']}://{SERVER_CONFIG['host']}:{SERVER_CONFIG['port']}"
+    
+    #     # self.video_writer.release()
+
+    #     if self.is_ai_event: 
+    #         # pessimistic trategy
+    #         # detection_image_url and detection_video_url have been assigned in the initial method
+    #         if self.true_alarm:
+    #             self.image_url = f"{self.host}{self.general_image_file}"
+    #             self.detection_image_url = f"{self.host}{self.detection_image_file}"
+    #         self.detection_video_url = f"{self.host}{self.detection_video_file}"                
+    #         self.true_alarm = True
+    #     else:
+    #         self.image_url = f"{self.host}{self.general_image_file}"
+    #         self.detection_image_url = f"{self.host}{self.detection_image_file}"
+    #         self.detection_video_url = f"{self.host}{self.detection_video_file}"
+
+    #     # self.convert_output_video_codec()
+
+    #     return self
 
     def remove_file(self, file_path):
         if os.path.exists(file_path):
@@ -138,6 +146,35 @@ class VideoEventManager:
         self.detection_video_path = ROOT_PATH + self.detection_video_file
         os.system(f"ffmpeg -loglevel warning -i {temp_path} -vcodec libx264 -f mp4 {self.detection_video_path}")
         self.remove_file(temp_path)
+
+    def get_host(self):
+        if SERVER_CONFIG["host"] == 'localhost':
+            return f"{SERVER_CONFIG['scheme']}://{SERVER_CONFIG['host']}:{SERVER_CONFIG['port']}"
+        else:
+            return f"{SERVER_CONFIG['scheme']}://{SERVER_CONFIG['host']}"
+
+    def process_event_output(self):
+        google_drive_uploader = GoogleDriveUploader()
+        general_image_path = self.general_image_path
+        detection_image_path = self.detection_image_path
+        detection_video_path = self.detection_video_path
+        try:
+            logging.info("Uploading medias to google drive when complete detect video")
+            self.image_url = google_drive_uploader.upload_and_get_link(general_image_path)
+            self.detection_image_url = google_drive_uploader.upload_and_get_link(detection_image_path)
+            self.detection_video_url = google_drive_uploader.upload_and_get_link(detection_video_path)
+        except Exception as e:
+            logging.error(str(e))
+            logging.info("Keep static files on disks")
+            self.host = self.get_host()
+            self.image_url = f"{self.host}{self.general_image_file}"
+            self.detection_image_url = f"{self.host}{self.detection_image_file}"
+            self.detection_video_url = f"{self.host}{self.detection_video_file}"
+        else:
+            self.remove_file(general_image_path)
+            self.remove_file(detection_image_path)
+            self.remove_file(detection_video_path)
+        return self
 
     def process_clear_file(self):
         print("Clear file: ", self.general_video_path)

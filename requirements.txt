@@ -57,3 +57,8 @@ easydict
 
 # Sort
 filterpy
+
+# Google drive
+google-auth 
+google-auth-oauthlib
+google-api-python-client

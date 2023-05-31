@@ -2,11 +2,14 @@ import cv2
 import os
 from datetime import datetime
 from pathlib import Path
+import logging
+
 from ...rtsp_stream.stream_loader import StreamLoader
 from .....pkg.config.config import config
 from ...object_detection.yolov7.utils.detection_stream import DetectionStream
 from ....utils.random_generator import RandomGenerator
 from .stream_event_output import StreamEventOutput
+from ...google_drive.google_drive_uploader import GoogleDriveUploader
 
 ROOT_INDEX = 4
 SERVER_CONFIG = config["server"]["http"]
@@ -22,6 +25,7 @@ class StreamEventManager:
 
     def __init__(self):
         self.camera_event_distance_with_same_type = dict()
+        self.google_drive_uploader = GoogleDriveUploader()
     
     def allow_detection(self, event_key, stream_id, cur_time):
         if (event_key, stream_id) not in self.camera_event_distance_with_same_type:
@@ -69,10 +73,15 @@ class StreamEventManager:
         detection_image_path = ROOT_PATH + detection_image_file
         return general_image_path, detection_image_path
 
+    def get_host(self):
+        if SERVER_CONFIG["host"] == 'localhost':
+            return f"{SERVER_CONFIG['scheme']}://{SERVER_CONFIG['host']}:{SERVER_CONFIG['port']}"
+        else:
+            return f"{SERVER_CONFIG['scheme']}://{SERVER_CONFIG['host']}"
 
 
     def gen_image_urls(self, general_image_file, detection_image_file):
-        host = f"{SERVER_CONFIG['scheme']}://{SERVER_CONFIG['host']}:{SERVER_CONFIG['port']}"
+        host = self.get_host()
         general_image_url = f"{host}{general_image_file}"
         detection_image_url = f"{host}{detection_image_file}"
         return general_image_url, detection_image_url

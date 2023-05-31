@@ -34,6 +34,7 @@ class LineCrossingDetected(EventDetected):
 
         line_crossing_utils.draw_event_utils(detection_results.img_frame_with_box, event_input.line_coords, event_input.line_crossing_vector)
 
+        print("Line coords video: ", event_input.line_coords)
 
         tracker = event_input.tracker
         if line_crossing_utils.exist_line_crossing_in_trajectories(tracker.get_current_frame_trajectories(), event_input.line_coords, event_input.line_crossing_vector):

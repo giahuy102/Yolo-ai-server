@@ -1,7 +1,14 @@
 import numpy as np
+from numpy.linalg import norm
 import math
 from numpy import linalg as LA
 import cv2
+
+from ....pkg.config.config import config
+
+EVENT_CONFIG = config["event"]
+CAMERA_EVENT_CONFIG = EVENT_CONFIG["camera"]
+LINE_CROSSING_EVENT_CONFIG = CAMERA_EVENT_CONFIG["line_crossing"]
 
 class LineCrossingUtils:
 
@@ -74,10 +81,22 @@ class LineCrossingUtils:
         for track_id in trajectories:
             trajectory = trajectories[track_id]
             if len(trajectory) > 1:
-                start = trajectory[-2]
-                end = trajectory[-1]
-                line_cross = self.checkLineCross((start[0], start[1], end[0], end[1]), line, line_crossing_vector)
+                for i in range(1, len(trajectory)):
+                    start = trajectory[i - 1]
+                    end = trajectory[i]
+                    line_cross = self.checkLineCross((start[0], start[1], end[0], end[1]), line, line_crossing_vector)
         return line_cross
+
+    def exist_object_near_line(self, detection_results, line):
+        [from_x, from_y, to_x, to_y] = line
+        pline_from = np.array([from_x, from_y])
+        pline_to = np.array([to_x, to_y])
+        for res in detection_results.results:
+            p_center = np.array([res.xywh[0], res.xywh[1]])
+            distance = norm(np.cross(pline_to - pline_from, pline_from - p_center)) / norm(pline_to - pline_from)
+            if distance <= LINE_CROSSING_EVENT_CONFIG["crossing_distance_threshold"]:
+                return True
+        return False
 
     def draw_event_utils(self, img, line, line_crossing_vector):
         cv2.line(img, (int(line[0]), int(line[1])), (int(line[2]), int(line[3])), (61, 31, 209), thickness=2)

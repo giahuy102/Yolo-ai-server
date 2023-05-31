@@ -25,6 +25,7 @@ class VideoEventProcessor:
     def postprocess_video_event(self):
         self.manager.process_save_images() \
                     .process_clear_file() \
+                    .process_end_video() \
                     .process_event_output()
 
 

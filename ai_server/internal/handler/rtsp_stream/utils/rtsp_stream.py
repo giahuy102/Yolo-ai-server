@@ -1,8 +1,10 @@
 import numpy as np
 
-
+from .....pkg.config.config import config
 from ...tracking.tracker import Tracker
 from ...sort_tracking.tracker import SortTracker
+
+TRACKING_CONFIG = config["tracking"]
 
 class RTSPStream:
     def __init__(self, camera_id, rtsp_url, event_key, iot_event_zone_coords, camera_event_zone_coords, stream_id=None): 
@@ -19,7 +21,7 @@ class RTSPStream:
 
         # self.tracker = Tracker()
 
-        self.tracker = SortTracker()
+        self.tracker = SortTracker() if TRACKING_CONFIG["algorithm"] == TRACKING_CONFIG["sort"] else Tracker()
         
         self.cur_detection_frame = np.random.randint(255, size=(640, 640, 3), dtype=np.uint8)
 
