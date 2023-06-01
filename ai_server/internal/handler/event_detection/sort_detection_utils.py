@@ -5,8 +5,9 @@ import math
 
 from ..object_detection.yolov7.utils.plots import plot_one_box
 from ..object_detection.yolov7.utils.labels import Labels
+from ....pkg.config.config import config
 
-PERSON_THRESHOLD = 0.31
+PERSON_THRESHOLD = config["detection"]["person_threshold"]
 IOT_EVENT_ZONE_LABEL = "Iot event zone"
 CAMERA_EVENT_ZONE_LABEL = "Camera event zone"
 CAMERA_ZONE_COLOR = [0, 0, 255] # in BGR format
@@ -149,5 +150,5 @@ class DetectionUtils:
         draw_boxes(detection_results.img_frame_with_box, xyxy_boxes, identities, categories, detection_results.names)
 
         cur_trajectories = tracker.get_current_frame_trajectories()
-        print("Trajectories: ", cur_trajectories)
+        # print("Trajectories: ", cur_trajectories)
         draw_trails(detection_results.img_frame_with_box, cur_trajectories)

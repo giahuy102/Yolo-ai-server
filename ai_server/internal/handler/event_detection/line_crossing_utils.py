@@ -84,7 +84,7 @@ class LineCrossingUtils:
                 for i in range(1, len(trajectory)):
                     start = trajectory[i - 1]
                     end = trajectory[i]
-                    line_cross = self.checkLineCross((start[0], start[1], end[0], end[1]), line, line_crossing_vector)
+                    line_cross = line_cross or self.checkLineCross((start[0], start[1], end[0], end[1]), line, line_crossing_vector)
         return line_cross
 
     def exist_object_near_line(self, detection_results, line):

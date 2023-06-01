@@ -67,8 +67,8 @@ movement = { key = "movement" }
 
 [event.camera]
 crowd_gathering = { key = "crowd_gathering", crowd_threshold = 1 }
-line_crossing = { key = "line_crossing", crossing_distance_threshold = 1.0, is_optimistic = true }
-same_event_type_spam_prevention_threshold = 20
+line_crossing = { key = "line_crossing", crossing_distance_threshold = 1, is_optimistic = true }
+same_event_type_spam_prevention_threshold = 5
 
 [static]
 [static.path]
@@ -81,6 +81,7 @@ general_video = "/static/general/video"
 
 [detection]
 max_frame = 30
+person_threshold = 0.31
 
 [tracking]
 sort = 1
