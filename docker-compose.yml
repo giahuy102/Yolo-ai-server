@@ -12,7 +12,7 @@ services:
     working_dir: /usr/app
     # Running in unbuffered mode => using for debugging when using with docker
     command: >
-      sh -c "pip install google-api-python-client && python3 -u app.py" 
+      sh -c "python3 -u app.py" 
     # command: >
     #   sh -c "python3 app.py" 
     # restart: always
