@@ -1,6 +1,10 @@
 
 import concurrent.futures
 
+from ...pkg.config.config import config
+
+WORKER_POOL_CONFIG = config["worker_pool"]
+MAX_WORKER = WORKER_POOL_CONFIG["video_process_worker"]
 
 # Singleton class
 class WorkerProcessPool:
@@ -14,7 +18,8 @@ class WorkerProcessPool:
         if WorkerProcessPool._instance != None:
             raise Exception("This class is a singleton! Please access from get_instance method")
         WorkerProcessPool._instance = self
-        self.process_pool_excecutor = concurrent.futures.ProcessPoolExecutor(max_workers=4)
+        self.max_worker = MAX_WORKER
+        self.process_pool_excecutor = concurrent.futures.ProcessPoolExecutor(max_workers=self.max_worker)
 
     def get_executor(self):
         return self.process_pool_excecutor

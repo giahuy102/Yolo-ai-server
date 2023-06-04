@@ -66,7 +66,7 @@ door_open = { key = "door_open" }
 movement = { key = "movement" }
 
 [event.camera]
-crowd_gathering = { key = "crowd_gathering", crowd_threshold = 1 }
+crowd_gathering = { key = "crowd_gathering", crowd_threshold = 2 }
 line_crossing = { key = "line_crossing", crossing_distance_threshold = 1, is_optimistic = true }
 same_event_type_spam_prevention_threshold = 5
 
@@ -80,7 +80,7 @@ general_video = "/static/general/video"
 
 
 [detection]
-max_frame = 30
+max_frame = 150
 person_threshold = 0.31
 
 [tracking]
@@ -96,7 +96,8 @@ destination="1ObING3lxYLZRPyi5u7yyKDPUA6rJqq3E"
 
 
 
-
+[worker_pool]
+video_process_worker = 4
 
 
 

@@ -9,6 +9,7 @@ from ..rabbitmq.utils.exchange import Exchange
 from ..rabbitmq.utils.queue import Queue
 from ...handler.video_event_processing.utils.video_event_input import VideoEventInput
 from ...handler.video_event_processing.video_event_processor import VideoEventProcessor
+from ...utils.worker_process_pool import WorkerProcessPool
 
 BROKER_CONFIG = config["rabbitmq"]
 EXCHANGES = BROKER_CONFIG["exchanges"]
@@ -73,9 +74,16 @@ class EventCreatedWithMediaCallback:
         if not self.valid_event_input(event_input):
             return
 
+        worker_process_pool = WorkerProcessPool.get_instance()
         video_event_processor = VideoEventProcessor()
-        logging.info("Handle detection video in new thread")
-        thread = threading.Thread(target=video_event_processor.execute, args=(event_input, functools.partial(self.callback_event_output, event_input.event_key)))
-        thread.start()
+        if worker_process_pool.max_worker <= 0:
+            
+            logging.info("Handle detection video in new thread")
+            thread = threading.Thread(target=video_event_processor.execute, args=(event_input, functools.partial(self.callback_event_output, event_input.event_key)))
+            thread.start()
+        else:
+            pool_executor = worker_process_pool.get_executor()
+            logging.info("Handle detection video by worker in process pool")
+            pool_executor.submit(video_event_processor.execute, event_input, functools.partial(self.callback_event_output, event_input.event_key))
         # video_event_processor.execute(event_input, self.callback_event_output(event_input.event_key))
 
