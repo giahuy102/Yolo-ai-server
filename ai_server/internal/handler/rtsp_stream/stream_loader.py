@@ -8,6 +8,11 @@ import copy
 import logging
 
 from ..object_detection.yolov7.utils.threading_condition import stream_condition
+from ....pkg.config.config import config
+
+STREAM_LOADER_CONFIG = config["stream_loader"]
+MAX_FALSE_RETRIEVE = STREAM_LOADER_CONFIG["max_false_retrieve"] 
+RETRIEVE_FRAME = STREAM_LOADER_CONFIG["retrieve_frame"]
 
 class StreamLoader:  # multiple IP or RTSP cameras
 
@@ -198,25 +203,48 @@ class StreamLoader:  # multiple IP or RTSP cameras
     def update(self, key, cap):
         # Read next stream frame in a daemon thread
         n = 0
+        num_frame = 0
         original_url = self.stream_infos[key].rtsp_url
+        info = self.stream_infos[key]
+        false_retrieve = 0
+        false_retrieve_break = False
         while cap.isOpened():
             n += 1
+            num_frame += 1
+
             # _, self.imgs[index] = cap.read()
             cap.grab()
-            if n == 4:  # read every 4th frame
+            if n == RETRIEVE_FRAME:  # read every 4th frame
                 self.infos_lock.acquire()
                 if key not in self.stream_infos or self.stream_infos[key].rtsp_url != original_url: 
                     self.infos_lock.release()
                     break
                 success, im = cap.retrieve()
+
+                if not success:
+                    false_retrieve += 1
+                else:
+                    false_retrieve = 0
+
+                if false_retrieve > MAX_FALSE_RETRIEVE:
+                    false_retrieve_break = True
+                    self.infos_lock.release()
+                    break
+
                 self.frames[key] = im if success else self.frames[key] * 0
                 self.infos_lock.release()
                 n = 0
             time.sleep(1 / self.fps)  # wait time
         else:
             self.remove_stream(key)
-        cap.release()
-        logging.info(f"Remove stream {key} from detection because of closed stream")
+        if false_retrieve_break:
+            logging.warn(f"Trying to remove and re-add stream {key} because of cv2 false retrieve frame {num_frame} from stream")
+            self.remove_stream(key)
+            cap.release()
+            self.add_stream(key, info)
+        else:
+            cap.release()
+            logging.info(f"Remove stream {key} from detection because of closed stream")
 
 
 

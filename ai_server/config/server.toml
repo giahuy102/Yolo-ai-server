@@ -68,7 +68,7 @@ movement = { key = "movement" }
 [event.camera]
 crowd_gathering = { key = "crowd_gathering", crowd_threshold = 2 }
 line_crossing = { key = "line_crossing", crossing_distance_threshold = 1, is_optimistic = true }
-same_event_type_spam_prevention_threshold = 5
+same_event_type_spam_prevention_threshold = 20
 
 [static]
 [static.path]
@@ -100,7 +100,9 @@ destination="1ObING3lxYLZRPyi5u7yyKDPUA6rJqq3E"
 video_process_worker = 4
 
 
-
+[stream_loader]
+max_false_retrieve = 1
+retrieve_frame = 4
 
 
 #     event_processing_exchange_name = "event_processing"
