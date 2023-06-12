@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+// message SingleCameraStreamResponseData {
+//     CameraStreamDetail camera_stream_detail = 1;
+// }
+
+
+message CameraStreamDetail {
+    string _id = 1;
+    string rtsp_stream_url = 2;
+    string sfu_rtsp_stream_url = 3;
+    bool is_set_line = 4;
+    string event_key = 5;
+    float offset_x_begin = 6;
+    float offset_x_end = 7;
+    float offset_y_begin = 8;
+    float offset_y_end = 9;
+    string username = 10;
+    string password = 11;
+
+    repeated float iot_event_zone_coords = 12;
+    repeated float camera_event_zone_coords = 13;
+    repeated float line_crossing_vector = 14;
+}
+
+
+message CameraStreamResponse {
+    string _id = 1;
+    string code = 2;
+    string message = 3;
+}
+
+
+message CreateCameraStreamRequest {
+    CameraStreamDetail camera_stream_detail = 1;
+}
+
+// message CreateCameraStreamResponse {
+//     SingleCameraStreamResponseData data = 1;
+//     string message = 2;
+//     string status = 3;
+// }
+
+
+message UpdateCameraStreamByIdRequest {
+    string _id = 1;
+    CameraStreamDetail camera_stream_detail = 2;
+}
+
+// message UpdateCameraStreamByIdResponse {
+//     SingleCameraStreamResponseData data = 1;
+//     string message = 2;
+//     string status = 3;
+// }
+
+
+message DeleteCameraStreamByIdRequest {
+    string _id = 1;
+}
+
+// message DeleteCameraStreamByIdResponse {
+//     SingleCameraStreamResponseData data = 1;
+//     string message = 2;
+//     string status = 3;
+// }
+
+
+message GetAllCameraStreamsResponse {
+    repeated CameraStreamDetail camera_streams = 1;
+    string message = 2;
+    string code = 3;
+}
+
+service CameraStreamInfoService {
+    rpc GetAllCameraStreams (Empty) returns (GetAllCameraStreamsResponse) {};
+    rpc CreateCameraStream (CreateCameraStreamRequest) returns (CameraStreamResponse) {};
+    rpc UpdateCameraStreamById (UpdateCameraStreamByIdRequest) returns (CameraStreamResponse) {};
+    rpc DeleteCameraStreamById (DeleteCameraStreamByIdRequest) returns (CameraStreamResponse) {};
+}
+
+message Empty {}

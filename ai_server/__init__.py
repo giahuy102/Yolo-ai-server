@@ -1,53 +1,21 @@
-from flask import Flask
-app = Flask(__name__)
+# from flask import Flask
+# app = Flask(__name__)
 
 
-# from pathlib import Path
-# print(Path(__file__).parent)
+# from .internal.delivery.rabbitmq.consumers import Consumers
+# from .internal.delivery.stream_detector.stream_detector import StreamDetector
+# from .internal.delivery.grpc.server import GrpcServer
 
-# (Path(__file__).parent / 'static1' / 'test').mkdir(parents=True, exist_ok=True)
+# def main():
+#     consumers = Consumers()
+#     consumers.start()
 
-# @app.route('/')
-# def hello_world():
-#    return 'Hello world'
+#     grpc_server = GrpcServer()
+#     grpc_server.start()
 
-
-
-
-
-
-
-
-
-from .pkg.config.config import config
-
-from .entity.rabbitmq.exchange import Exchange
-from .entity.rabbitmq.queue import Queue 
-
-from .delivery.rabbitmq.thread_consumer import ThreadConsumer
-
-
-def callback(channel, method, properties, body):
-   print(method.routing_key)
-
-
-broker_config = config['rabbitmq']
-
-consumers = list()
+#     stream_detector = StreamDetector()
+#     stream_detector.start()
 
 
 
-for exchange in broker_config['exchanges']:
-   new_exchange = Exchange(exchange["name"])
-   for q in exchange["queues"]:
-      new_queue = Queue(q["name"], q["binding_keys"])
-      consumer = ThreadConsumer(new_exchange, new_queue, callback)
-      consumers.append(consumer)
-      consumer.start()
-
-
-
-
-
-
-
+# main()

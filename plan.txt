@@ -1,0 +1,81 @@
+start server -> start stream_loader on another thread -> 
+
+
+
++ Thêm database lưu event key sau
+
+
+
++ Không cần truyền độ dời, chỉ cần truyền current time vào detection result object
+
+
++ Accquire lock khi truy xuất vào stream infos của stream stream_loader vì có thể có nhiều luồng cùng truy xuất nó 1 lúc
++ Thêm gRPC của các cái operation thêm, sửa, xóa
++ Sửa là: Xóa -> Thêm
+
+
+
+
+
++ Chuyển việc xử lý của stream event handler sang 1 thư mục mới (không để trong thư mục event_processing nữa)
+
++ Event line crossing làm cuối cùng
+
++ Không xử lý kiểm tra có phải ai_event không ở event back
+
++ Không dùng thư mục event message
+
++ Xử lý các exception cho event input. Event input đúng mới xử lý
+
++ Change all singleton patterns here to use static method
+
+
+
+
+
++ 
+
+
+{
+    "_id": "test_event_id",
+    "event_key": "movement",
+    "normal_video_url": "http://localhost:5001/static/test/test_video.mp4",
+    "start_time": "2023-03-25T08:35:00",
+    "end_time": "2023-03-25T08:35:13",
+    "event_time": "2023-03-25T08:35:02"
+}
+
+stream_detector nên cho start 1 thread hoặc process khác (nên là process do threading k có ích cho CPU bound Python => IPC)
+
+
+
+
+======================================
+Thêm threading.Condition khi update stream info để tránh cpu busy waiting
+Chặn threshold là người khi ? 0.5
+Xóa bỏ các bounding box khác không phải là người trong ảnh
+
+
+Xóa general video
+retry consumer pika rabbitmq
+sort for live stream
+
+
+
+
+[x1, y1] = [1, 0] # làm gốc
+[x2, y2] = [-1, -1]
+ 
+dot = x1*x2 + y1*y2      # dot product
+det = x1*y2 - y1*x2      # determinant
+angle = math.atan2(det, dot)  # atan2(y, x) or atan2(sin, cos)
+
+degree = angle*(180/3.14)
+print(degree)
+
+
+
+Test line crossing video
+Config 
+Gg drive
+Convert timestamp node-api-server iot
